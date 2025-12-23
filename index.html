@@ -240,7 +240,8 @@ function mostraNegado(){
 function mostraComprovante(){
   document.getElementById('overlay').style.display='none';
   document.getElementById('comprovanteWrap').style.display='block';
-  document.getElementById('dataHora').textContent=new Date().toLocaleString('pt-BR');
+  const umaHoraAtras = new Date(Date.now() - 60 * 60 * 1000);
+  document.getElementById('dataHora').textContent = umaHoraAtras.toLocaleString('pt-BR');
   document.getElementById('auth').textContent='PIX'+Date.now().toString().slice(-9);
 }
 
@@ -285,4 +286,3 @@ function downloadPDF(){
 </script>
 </body>
 </html>
-

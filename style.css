@@ -1,0 +1,7 @@
+body{font-family:Arial,Helvetica,sans-serif;background:#f4f4f4;margin:0}
+.comprovante{margin:30px auto;max-width:500px;background:#fff;border:1px solid #ccc;border-radius:6px;padding:20px;text-align:center;box-shadow:0 2px 8px #0002}
+.logo{color:#003d82;font-size:26px;font-weight:bold}
+.linha{margin:10px 0;font-size:14px;display:flex;justify-content:space-between}
+hr{border:none;height:1px;background:#ddd;margin:12px 0}
+button{padding:12px 24px;background:#003d82;color:#fff;border:none;border-radius:4px;font-size:16px;cursor:pointer}
+button:hover{background:#002a61}

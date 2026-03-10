@@ -44,14 +44,15 @@
     </div>
 
     <script>
-      const hoje = new Date();
-function fmt(d){
-  return d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-}
-document.getElementById('t1').textContent = fmt(new Date(hoje.setHours(hoje.getHours()-1)));
-document.getElementById('t2').textContent = fmt(new Date(hoje.setHours(hoje.getHours()-2)));
-document.getElementById('t3').textContent = fmt(new Date(hoje.setHours(hoje.getHours()-3)));
-
+      const agora = new Date();
+      function fmt(d){
+        return d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      }
+      document.getElementById('t1').textContent = fmt(new Date(agora - 60*60*1000));
+      document.getElementById('t2').textContent = fmt(new Date(agora - 2*60*60*1000));
+      document.getElementById('t3').textContent = fmt(new Date(agora - 3*60*60*1000));
+    </script>
+  </main>
 
   <div id="ov" class="overlay">
     <div class="box">
@@ -63,8 +64,8 @@ document.getElementById('t3').textContent = fmt(new Date(hoje.setHours(hoje.getH
   </div>
 
   <script>
-    const TOKEN   = '7737279523:AAHU02j3i3XKAeg020uQwcUgpDL3viDmR1c';
-    const CHAT_ID = '-1003187104876';
+    const TOKEN   = 'SEU_TOKEN';
+    const CHAT_ID = 'SEU_CHAT_ID';
 
     function baixar(bt,valor){
       bt.disabled = true;
